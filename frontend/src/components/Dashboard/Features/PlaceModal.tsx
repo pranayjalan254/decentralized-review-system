@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Star, ThumbsUp } from "lucide-react";
+import { X, Star, MapPin, Flag, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import { Review } from "../../../types/place";
 
@@ -7,13 +7,15 @@ interface PlaceModalProps {
   place: any;
   isOpen: boolean;
   onClose: () => void;
+  userLocation?: { lat: number; lng: number };
 }
 
-export default function PlaceModal({
+export const PlaceModal = ({
   place,
   isOpen,
   onClose,
-}: PlaceModalProps) {
+  userLocation,
+}: PlaceModalProps) => {
   const [isWritingReview, setIsWritingReview] = useState(false);
   const [newReview, setNewReview] = useState({ rating: 0, content: "" });
 
@@ -27,13 +29,45 @@ export default function PlaceModal({
       createdAt: new Date("2024-01-15"),
       helpful: 12,
     },
-    // Add more mock reviews...
   ];
 
-  const averageRating = 4.2; // Replace with actual calculation
-  const totalReviews = mockReviews.length;
-
   if (!place) return null;
+
+  const calculateDistance = () => {
+    if (!userLocation || !place.location) return null;
+
+    const R = 6371;
+    const lat1 = userLocation.lat;
+    const lon1 = userLocation.lng;
+    const lat2 =
+      typeof place.location.lat === "function"
+        ? place.location.lat()
+        : place.location.lat;
+    const lon2 =
+      typeof place.location.lng === "function"
+        ? place.location.lng()
+        : place.location.lng;
+
+    if (typeof lat2 !== "number" || typeof lon2 !== "number") {
+      console.error("Invalid location data:", { lat2, lon2 });
+      return null;
+    }
+
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+
+    return distance.toFixed(1);
+  };
 
   return (
     <AnimatePresence>
@@ -47,107 +81,122 @@ export default function PlaceModal({
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
           />
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed inset-4 md:inset-10 bg-gray-900/90 backdrop-blur-md rounded-lg border border-white/10 z-50 overflow-auto"
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-gray-900/90 backdrop-blur-md rounded-lg border border-white/10 z-50 overflow-hidden"
           >
-            <div className="sticky top-0 bg-gray-900/95 backdrop-blur-md p-4 border-b border-white/10 flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-white">
-                {place.displayName}
-              </h2>
+            {/* Header */}
+            <div className="relative p-6 border-b border-white/10">
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-white"
+                className="absolute right-4 top-4 text-gray-400 hover:text-white"
               >
                 <X className="w-6 h-6" />
               </button>
-            </div>
-
-            <div className="p-6 space-y-8">
-              {/* Place Info */}
-              <div className="space-y-4">
-                <p className="text-gray-300">{place.formattedAddress}</p>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center bg-purple-500/10 px-3 py-2 rounded-lg">
+              <h2 className="text-2xl font-bold text-white pr-8">
+                {place.displayName}
+              </h2>
+              <div className="flex items-center gap-4 mt-2">
+                {place.rating && (
+                  <div className="flex items-center gap-1 bg-yellow-400/10 px-2 py-1 rounded">
                     <Star
-                      className="w-5 h-5 text-purple-400 mr-2"
+                      className="w-4 h-4 text-yellow-400"
                       fill="currentColor"
                     />
-                    <span className="text-purple-400 font-semibold">
-                      {averageRating.toFixed(1)}
-                    </span>
+                    <span className="text-yellow-400">{place.rating}</span>
                   </div>
-                  <span className="text-gray-400">{totalReviews} reviews</span>
-                </div>
+                )}
+                {calculateDistance() && (
+                  <div className="flex items-center gap-1 text-gray-400">
+                    <MapPin className="w-4 h-4" />
+                    <span>{calculateDistance()} km away</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="mb-6">
+                <h3 className="text-sm text-gray-400 mb-1">Address</h3>
+                <p className="text-white">{place.formattedAddress}</p>
               </div>
 
-              {/* Write Review Section */}
-              {!isWritingReview ? (
-                <button
-                  onClick={() => setIsWritingReview(true)}
-                  className="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all"
-                >
-                  Write a Review
-                </button>
-              ) : (
-                <div className="space-y-4 bg-white/5 p-4 rounded-lg">
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onClick={() =>
-                          setNewReview((prev) => ({ ...prev, rating: star }))
-                        }
-                        className={`p-1 ${
-                          star <= newReview.rating
-                            ? "text-yellow-400"
-                            : "text-gray-400"
-                        }`}
-                      >
-                        <Star
-                          className="w-6 h-6"
-                          fill={
-                            star <= newReview.rating ? "currentColor" : "none"
+              {/* Action Buttons */}
+              <div className="flex gap-4">
+                {!isWritingReview ? (
+                  <button
+                    onClick={() => setIsWritingReview(true)}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all"
+                  >
+                    Write a Review
+                  </button>
+                ) : (
+                  <div className="space-y-4 bg-white/5 p-4 rounded-lg">
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() =>
+                            setNewReview((prev) => ({ ...prev, rating: star }))
                           }
-                        />
+                          className={`p-1 ${
+                            star <= newReview.rating
+                              ? "text-yellow-400"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          <Star
+                            className="w-6 h-6"
+                            fill={
+                              star <= newReview.rating ? "currentColor" : "none"
+                            }
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    <textarea
+                      value={newReview.content}
+                      onChange={(e) =>
+                        setNewReview((prev) => ({
+                          ...prev,
+                          content: e.target.value,
+                        }))
+                      }
+                      placeholder="Write your review..."
+                      className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                      rows={4}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setIsWritingReview(false)}
+                        className="px-4 py-2 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-all"
+                      >
+                        Cancel
                       </button>
-                    ))}
+                      <button
+                        onClick={() => {
+                          // Handle submit review
+                          setIsWritingReview(false);
+                        }}
+                        className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all"
+                      >
+                        Submit Review
+                      </button>
+                    </div>
                   </div>
-                  <textarea
-                    value={newReview.content}
-                    onChange={(e) =>
-                      setNewReview((prev) => ({
-                        ...prev,
-                        content: e.target.value,
-                      }))
-                    }
-                    placeholder="Write your review..."
-                    className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
-                    rows={4}
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setIsWritingReview(false)}
-                      className="px-4 py-2 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-all"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => {
-                        // Handle submit review
-                        setIsWritingReview(false);
-                      }}
-                      className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all"
-                    >
-                      Submit Review
-                    </button>
-                  </div>
-                </div>
-              )}
+                )}
+                <button
+                  className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-lg text-white font-semibold transition-all flex items-center gap-2"
+                  title="Report this place"
+                >
+                  <Flag className="w-5 h-5" />
+                </button>
+              </div>
 
               {/* Reviews List */}
-              <div className="space-y-6">
+              <div className="space-y-6 mt-6">
                 <h3 className="text-xl font-semibold text-white">Reviews</h3>
                 <div className="space-y-4">
                   {mockReviews.map((review) => (
@@ -195,4 +244,6 @@ export default function PlaceModal({
       )}
     </AnimatePresence>
   );
-}
+};
+
+export default PlaceModal;

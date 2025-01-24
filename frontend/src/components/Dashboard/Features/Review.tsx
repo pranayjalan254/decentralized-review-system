@@ -14,7 +14,7 @@ interface CachedData {
   timestamp: number;
 }
 
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CACHE_DURATION = 5 * 60 * 1000;
 
 export default function Review() {
   const [selectedCategory, setSelectedCategory] = useState("restaurants");
@@ -81,7 +81,6 @@ export default function Review() {
 
     const now = Date.now();
     if (now - cached.timestamp > CACHE_DURATION) {
-      // Cache expired
       return null;
     }
 
@@ -181,6 +180,39 @@ export default function Review() {
     }
   };
 
+  const calculateDistance = (placeLocation: any) => {
+    if (!userLocation || !placeLocation) return null;
+
+    const R = 6371;
+    const lat1 = userLocation.lat;
+    const lon1 = userLocation.lng;
+    const lat2 =
+      typeof placeLocation.lat === "function"
+        ? placeLocation.lat()
+        : placeLocation.lat;
+    const lon2 =
+      typeof placeLocation.lng === "function"
+        ? placeLocation.lng()
+        : placeLocation.lng;
+
+    if (typeof lat2 !== "number" || typeof lon2 !== "number") return null;
+
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+
+    return distance.toFixed(1);
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/10">
@@ -214,7 +246,6 @@ export default function Review() {
               placeholder="Search places or leave empty for nearby..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 pl-10 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
             />
             <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
@@ -249,7 +280,7 @@ export default function Review() {
                   }}
                   className="group bg-black/20 backdrop-blur-sm rounded-lg p-4 border border-white/10 h-[180px] relative cursor-pointer hover:bg-white/5 transition-colors"
                 >
-                  <div className="space-y-2">
+                  <div className="h-[120px] space-y-2">
                     <h3 className="text-white font-semibold text-lg line-clamp-1">
                       {place.displayName}
                     </h3>
@@ -257,9 +288,16 @@ export default function Review() {
                       {place.formattedAddress}
                     </p>
                   </div>
-                  <span className="absolute bottom-4 right-4 text-sm text-purple-400 group-hover:text-purple-300 transition-colors">
-                    View details →
-                  </span>
+                  <div className="absolute bottom-4 inset-x-4 flex justify-between items-center">
+                    {calculateDistance(place.location) && (
+                      <span className="text-sm text-gray-400">
+                        {calculateDistance(place.location)} km away
+                      </span>
+                    )}
+                    <span className="text-sm text-purple-400 group-hover:text-purple-300 transition-colors">
+                      View details →
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -274,6 +312,8 @@ export default function Review() {
           setIsModalOpen(false);
           setSelectedPlace(null);
         }}
+        // @ts-ignore
+        userLocation={userLocation}
       />
     </div>
   );
