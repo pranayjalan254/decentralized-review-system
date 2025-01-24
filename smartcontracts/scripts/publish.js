@@ -11,7 +11,7 @@ async function publish() {
 
   move
     .createObjectAndPublishPackage({
-      packageDirectoryPath: "move",
+      packageDirectoryPath: "/home/ghostrider/Blockchain/review2/decentralized-review-system/smartcontracts/",
       addressName: "launchpad_addr",
       namedAddresses: {
         // Publish module to account address

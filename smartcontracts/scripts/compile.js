@@ -10,7 +10,7 @@ async function compile() {
   const move = new cli.Move();
 
   await move.compile({
-    packageDirectoryPath: "move",
+    packageDirectoryPath: "/home/ghostrider/Blockchain/review2/decentralized-review-system/smartcontracts/",
     namedAddresses: {
       // Publish module to account address
       launchpad_addr: accountAddress,
