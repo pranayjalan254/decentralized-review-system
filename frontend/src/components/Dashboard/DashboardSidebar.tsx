@@ -1,5 +1,5 @@
-import { Star, ClipboardList, Award, Home } from "lucide-react";
-import { cn } from "./lib/utils";
+import { Star, ClipboardList, Award, Home, Store } from "lucide-react";
+import { cn } from "../../lib/utils";
 
 interface SidebarProps {
   currentFeature: string;
@@ -15,6 +15,7 @@ export const DashboardSidebar = ({
     { id: "reviews", label: "Reviews", icon: Star },
     { id: "surveys", label: "Surveys", icon: ClipboardList },
     { id: "labelling", label: "Data Labelling", icon: Award },
+    { id: "store", label: "Store", icon: Store },
   ];
 
   return (

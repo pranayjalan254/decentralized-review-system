@@ -24,13 +24,19 @@ const Dashboard = () => {
         currentFeature={currentFeature}
         setCurrentFeature={setCurrentFeature}
       />
-      <div className="flex-1 p-8">
-        <WelcomeHeader
-          userName={mockUser.name}
-          tokenBalance={mockUser.tokenBalance}
-        />
-        {currentFeature === "home" && <StatCards stats={mockStats} />}
-        <FeatureContent feature={currentFeature} />
+      <div className="flex-1 p-5">
+        {currentFeature === "home" && (
+          <>
+            <WelcomeHeader
+              userName={mockUser.name}
+              tokenBalance={mockUser.tokenBalance}
+            />
+            <StatCards stats={mockStats} />
+          </>
+        )}
+        {currentFeature !== "home" && (
+          <FeatureContent feature={currentFeature} />
+        )}
       </div>
     </div>
   );
