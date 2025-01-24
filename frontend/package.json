@@ -10,12 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aptos-labs/ts-sdk": "^1.33.2",
     "@gsap/react": "^2.1.2",
     "@tailwindcss/postcss": "^4.0.0",
     "@tailwindcss/vite": "^4.0.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.0.5",
     "gsap": "^3.12.7",
+    "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.474.0",
     "react": "^18.2.0",

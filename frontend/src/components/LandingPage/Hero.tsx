@@ -4,10 +4,29 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import useEphemeralKeyPair from "../Auth/Auth";
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  const handleGoogleLogin = () => {
+    const ekp = useEphemeralKeyPair();
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+    const loginUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: "http://localhost:5174/callback",
+      response_type: "id_token",
+      scope: "openid email profile",
+      nonce: ekp.nonce,
+      prompt: "consent",
+      access_type: "offline",
+    });
+
+    window.location.href = `${loginUrl.toString()}?${params.toString()}`;
+  };
 
   useGSAP(
     () => {
@@ -55,7 +74,10 @@ export default function Hero() {
             >
               Connect Wallet
             </button>
-            <button className="px-8 py-4 bg-white/10 backdrop-blur-sm rounded-full text-white font-semibold hover:bg-white/20 transition-all">
+            <button
+              onClick={handleGoogleLogin}
+              className="px-8 py-4 bg-white/10 backdrop-blur-sm rounded-full text-white font-semibold hover:bg-white/20 transition-all"
+            >
               Continue with Google
             </button>
           </motion.div>
