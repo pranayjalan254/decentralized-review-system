@@ -1,0 +1,26 @@
+{
+  "name": "token-minting-dapp-template",
+  "private": true,
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "scripts": {
+    "move:init": "node ./scripts/init",
+    "move:test": "node ./scripts/move/test",
+    "move:compile": "node ./scripts/move/compile",
+    "move:publish": "node ./scripts/move/publish",
+    "move:upgrade": "node ./scripts/move/upgrade",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "deploy": "vercel",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "_fmt": "prettier 'frontend//*.ts'",
+    "fmt": "npm run _fmt -- --write"
+  },
+  "dependencies": {
+    "@aptos-labs/ts-sdk": "^1.22.1",
+    "@aptos-labs/wallet-adapter-react": "^3.5.0",
+    "@irys/sdk": "^0.2.1",
+    "js-yaml": "4.1.0"
+  }
+}

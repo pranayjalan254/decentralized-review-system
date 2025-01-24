@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Search, Utensils, Hotel, Dumbbell, Loader2 } from "lucide-react";
+import {
+  Search,
+  Utensils,
+  Hotel,
+  Dumbbell,
+  Loader2,
+  Coffee,
+} from "lucide-react";
 import PlaceModal from "./PlaceModal";
 
 interface PlaceResult {
@@ -49,6 +56,12 @@ export default function Review() {
       label: "Gyms",
       icon: Dumbbell,
       type: "gym",
+    },
+    {
+      id: "cafes",
+      label: "Cafes",
+      icon: Coffee,
+      type: "cafe",
     },
   ];
 
