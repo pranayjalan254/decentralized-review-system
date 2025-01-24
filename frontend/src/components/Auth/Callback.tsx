@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { parseJWTFromURL, initializeAptosKeyless } from "../../lib/auth";
+import { getLocalKeylessAccount } from "../../lib/keyless";
 import { Loader2 } from "lucide-react";
 
 export default function Callback() {
@@ -10,6 +11,17 @@ export default function Callback() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
+        // Check if we already have a stored account
+        const existingAccount = getLocalKeylessAccount();
+        if (existingAccount) {
+          console.log(
+            "Using existing account:",
+            existingAccount.accountAddress.toString()
+          );
+          navigate("/dashboard");
+          return;
+        }
+
         const jwt = parseJWTFromURL(window.location.href);
         if (!jwt) {
           console.error("Failed to parse JWT from URL:", window.location.href);

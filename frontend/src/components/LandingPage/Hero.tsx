@@ -3,12 +3,11 @@ import { Shield, Star, Users } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+
 import useEphemeralKeyPair from "../Auth/Auth";
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
 
   const handleGoogleLogin = () => {
     const ekp = useEphemeralKeyPair();
@@ -68,12 +67,6 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all"
-            >
-              Connect Wallet
-            </button>
             <button
               onClick={handleGoogleLogin}
               className="px-8 py-4 bg-white/10 backdrop-blur-sm rounded-full text-white font-semibold hover:bg-white/20 transition-all"

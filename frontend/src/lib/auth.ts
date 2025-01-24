@@ -1,6 +1,7 @@
 import { jwtDecode } from "jwt-decode";
 import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 import { getLocalEphemeralKeyPair } from "../components/Auth/storeEmpheralKeyPair";
+import { storeKeylessAccount } from "./keyless";
 
 export interface JWTPayload {
   nonce: string;
@@ -31,24 +32,8 @@ export const initializeAptosKeyless = async (jwt: string) => {
       ephemeralKeyPair: ekp,
     });
 
-    // Fund the account on testnet
-    try {
-      const address = keylessAccount.accountAddress.toString();
-      console.log("Funding account:", address);
-
-      const response = await fetch(
-        `https://faucet.testnet.aptoslabs.com/fund?address=${address}&amount=1`,
-        { method: "POST" }
-      );
-      if (!response.ok) {
-        console.warn("Account might already be funded");
-      } else {
-        console.log("Account funded successfully");
-      }
-    } catch (error) {
-      console.warn("Error funding account:", error);
-    }
-
+    // Store the keyless account
+    storeKeylessAccount(keylessAccount);
     return { keylessAccount, userInfo: payload };
   } catch (error) {
     console.error("Aptos initialization error:", error);

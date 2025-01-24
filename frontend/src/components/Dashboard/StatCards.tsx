@@ -1,10 +1,9 @@
-import { Star, ClipboardList, Award, TrendingUp } from "lucide-react";
+import { Star, ClipboardList, Award } from "lucide-react";
 
 interface Stats {
   reviews: number;
   surveysCompleted: number;
   dataLabelled: number;
-  tokensEarned: number;
 }
 
 export const StatCards = ({ stats }: { stats: Stats }) => {
@@ -30,17 +29,10 @@ export const StatCards = ({ stats }: { stats: Stats }) => {
       color: "text-pink-400",
       bgColor: "bg-pink-400/10",
     },
-    {
-      title: "Tokens Earned",
-      value: stats.tokensEarned,
-      icon: TrendingUp,
-      color: "text-green-400",
-      bgColor: "bg-green-400/10",
-    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div className="grid grid-cols-3 gap-6 mb-6">
       {cards.map((card) => (
         <div
           key={card.title}
