@@ -10,7 +10,7 @@ addr="f42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485"
 
 [dependencies.AptosFramework]
 git = "https://github.com/aptos-labs/aptos-framework.git"
-rev = "mainnet"
+rev = "testnet"
 subdir = "aptos-framework"
 
 [dev-dependencies]
