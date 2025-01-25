@@ -8,6 +8,14 @@ import {
   Coffee,
 } from "lucide-react";
 import PlaceModal from "./PlaceModal";
+import { Account, Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
+import { getLocalKeylessAccount } from "../../../lib/keyless";
+
+const config = new AptosConfig({ network: Network.TESTNET });
+const aptos = new Aptos(config);
+const ledgerInfo = await aptos.getLedgerInfo();
+const account = getLocalKeylessAccount();
+const accountAddress = account?.accountAddress.toString();
 
 interface PlaceResult {
   displayName: string;
