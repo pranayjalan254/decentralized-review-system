@@ -84,10 +84,10 @@ export const PlaceModal = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-gray-900/90 backdrop-blur-md rounded-lg border border-white/10 z-50 overflow-hidden"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-2xl bg-gray-900/90 backdrop-blur-md rounded-lg border border-white/10 z-50 overflow-hidden max-h-[90vh] overflow-y-auto"
           >
             {/* Header */}
-            <div className="relative p-6 border-b border-white/10">
+            <div className="p-4 sm:p-6 border-b border-white/10">
               <button
                 onClick={onClose}
                 className="absolute right-4 top-4 text-gray-400 hover:text-white"
@@ -117,14 +117,14 @@ export const PlaceModal = ({
             </div>
 
             {/* Content */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="mb-6">
                 <h3 className="text-sm text-gray-400 mb-1">Address</h3>
                 <p className="text-white">{place.formattedAddress}</p>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                 {!isWritingReview ? (
                   <button
                     onClick={() => setIsWritingReview(true)}
@@ -196,7 +196,7 @@ export const PlaceModal = ({
               </div>
 
               {/* Reviews List */}
-              <div className="space-y-6 mt-6">
+              <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
                 <h3 className="text-xl font-semibold text-white">Reviews</h3>
                 <div className="space-y-4">
                   {mockReviews.map((review) => (

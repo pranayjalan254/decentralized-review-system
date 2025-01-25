@@ -12,6 +12,8 @@
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.33.2",
     "@gsap/react": "^2.1.2",
+    "@headlessui/react": "^2.2.0",
+    "@heroicons/react": "^2.2.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@tailwindcss/vite": "^4.0.0",
     "clsx": "^2.1.1",
