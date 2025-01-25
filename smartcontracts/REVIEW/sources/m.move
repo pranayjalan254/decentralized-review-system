@@ -1,4 +1,4 @@
-module addr::review {
+module addr::review2 {
     use std::string::{String, utf8};
     use aptos_framework::event;
     use aptos_framework::account;
@@ -10,7 +10,7 @@ module addr::review {
     const E_INVALID_RATING: u64 = 1;
     const E_NOT_INITIALIZED: u64 = 2;
     const E_NOT_OWNER: u64 = 3;
-    const OWNER_ADDRESS: address = @0x5f9027cf5f971d8a08a51beb9d2b97b455586c93b5006f7318e7c60651d44a0e;
+    const OWNER_ADDRESS: address = @0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485;
 
     // Represents a single review
     struct Review has store, drop, copy {
@@ -122,7 +122,7 @@ module addr::review {
         *table::borrow(&establishment_reviews.reviews, review_index)
     }
 
-    #[test(framework = @aptos_framework, owner = @0x5f9027cf5f971d8a08a51beb9d2b97b455586c93b5006f7318e7c60651d44a0e, reviewer = @0x1)]
+    #[test(framework = @aptos_framework, owner = @0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485, reviewer = @0x1)]
     public entry fun test_query_reviews(
         framework: signer,
         owner: signer,
@@ -216,7 +216,7 @@ module addr::review {
         assert!(string::utf8(b"Great equipment") == gym_review.comment, 6);
     }
 
-    #[test(framework = @aptos_framework, owner = @0x5f9027cf5f971d8a08a51beb9d2b97b455586c93b5006f7318e7c60651d44a0e, reviewer = @0x1)]
+    #[test(framework = @aptos_framework, owner = @0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485, reviewer = @0x1)]
     #[expected_failure(abort_code = E_NOT_INITIALIZED)]
     public entry fun test_query_nonexistent_review(
         framework: signer,
