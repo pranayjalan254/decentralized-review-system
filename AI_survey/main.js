@@ -1,9 +1,10 @@
 const { google } = require('googleapis');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+require('dotenv').config();
 
 const credentials = {
-    client_id: "344760670435-n0lgbqb0at54vnt23eaa3ahqpcamdld9.apps.googleusercontent.com",
-    client_secret: "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",
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    client_secret: process.env.GOOGLE_CLIENT_SECRET,
     redirect_uri: "http://localhost:8080/"
 };
 
@@ -12,9 +13,9 @@ async function authenticateGoogle() {
 
     try {
         const oAuth2Client = new google.auth.OAuth2(
-            credentials.client_id,
-            credentials.client_secret,
-            credentials.redirect_uri
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+            "http://localhost:8080/"
         );
 
         const authUrl = oAuth2Client.generateAuthUrl({
@@ -56,7 +57,7 @@ async function authenticateGoogle() {
 }
 
 async function generateSurveyQuestions(surveyTopic, audience, totalQuestions, additionalDetails) {
-    const genAI = new GoogleGenerativeAI('AIzaSyAh53cfyAhoWNzvZP-1FmdD6gT-gVpwyHQ');
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
     
     const prompt = `
     "You are an expert survey designer with deep knowledge of psychology, user engagement, and data collection best practices. Your task is to create an effective Google Forms survey that maximizes respondent attention, minimizes survey completion time, and ensures the collection of all necessary data for the specified purpose.
