@@ -41,23 +41,23 @@ export default function Hero() {
 
   return (
     <div ref={containerRef} className="relative min-h-screen">
-      <div className="relative container mx-auto px-6 pt-32 pb-24">
+      <div className="relative container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-16 md:pb-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center"
+          className="text-center max-w-6xl mx-auto"
         >
-          <div className="space-y-6 mb-16">
+          <div className="space-y-4 md:space-y-6 mb-12 md:mb-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 mb-4">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 mb-2 md:mb-4">
                 TrueScore
               </h1>
-              <p className="text-2xl font-medium text-gray-300">
+              <p className="text-xl md:text-2xl font-medium text-gray-300">
                 Where Trust Meets Technology
               </p>
             </motion.div>
@@ -66,7 +66,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="text-xl text-gray-400 max-w-3xl mx-auto"
+              className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto px-4"
             >
               A revolutionary platform combining blockchain-verified reviews,
               AI-powered surveys, and community rewards to build a trustworthy
@@ -88,7 +88,7 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          <div className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="mt-16 md:mt-32 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 px-4 md:px-0">
             <FeatureCard
               icon={<Shield className="w-12 h-12 text-purple-400 mb-4" />}
               title="Soulbound Tokens"
@@ -114,7 +114,7 @@ export default function Hero() {
             />
           </div>
 
-          <div className="trust-score absolute top-1/2 right-10 transform -translate-y-1/2 w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+          <div className="trust-score hidden md:flex absolute top-1/2 right-10 transform -translate-y-1/2 w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full items-center justify-center">
             <div className="text-center">
               <div className="text-2xl font-bold text-white">98%</div>
               <div className="text-sm text-white/80">Trust Score</div>
@@ -157,11 +157,13 @@ function FeatureCard({
       initial={{ opacity: 0, x: getInitialX(), y: getInitialY() }}
       animate={{ opacity: 1, x: 0, y: 0 }}
       transition={{ delay, duration: 0.8 }}
-      className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl"
+      className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl flex flex-col items-center"
     >
-      {icon}
-      <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
-      <p className="text-gray-300">{description}</p>
+      <div className="flex items-center justify-center mb-4">{icon}</div>
+      <h3 className="text-xl font-semibold text-white mb-2 text-center">
+        {title}
+      </h3>
+      <p className="text-gray-300 text-center">{description}</p>
     </motion.div>
   );
 }

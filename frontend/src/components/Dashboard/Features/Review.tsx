@@ -227,14 +227,14 @@ export default function Review() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/10">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="bg-black/20 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/10">
         <h2 className="text-xl font-semibold mb-6 text-white">
           Reviews & Ratings
         </h2>
 
         {/* Categories */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-wrap gap-2 sm:gap-4 mb-4 sm:mb-6">
           {categories.map((category) => (
             <button
               key={category.id}
@@ -252,7 +252,7 @@ export default function Review() {
         </div>
 
         {/* Search Bar */}
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <div className="flex-1 relative">
             <input
               type="text"
@@ -283,7 +283,7 @@ export default function Review() {
         searchResults.length > 0 && (
           <div>
             <h2 className="pb-4">Nearby Places...</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {searchResults.map((place, index) => (
                 <div
                   key={index}

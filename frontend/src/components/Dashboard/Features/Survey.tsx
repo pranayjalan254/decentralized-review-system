@@ -37,14 +37,14 @@ export default function Survey() {
   const [loading, _setLoading] = useState(false);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-white/10">
         <h2 className="text-xl font-semibold mb-6 text-white">
           Surveys & Rewards
         </h2>
 
         {/* Search and Create Survey */}
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <div className="flex-1 relative">
             <input
               type="text"
@@ -57,7 +57,7 @@ export default function Survey() {
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-2"
+            className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center justify-center gap-2"
           >
             <PlusCircle className="w-5 h-5" />
             Create Survey
@@ -71,7 +71,7 @@ export default function Survey() {
           <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {dummySurveys.map((survey) => (
             <div
               key={survey.id}
@@ -108,8 +108,8 @@ export default function Survey() {
 
       {/* Create Survey Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-gray-900 rounded-lg p-6 w-full max-w-2xl border border-white/10">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-lg p-4 sm:p-6 w-full max-w-2xl border border-white/10 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-semibold text-white">
                 Create New Survey

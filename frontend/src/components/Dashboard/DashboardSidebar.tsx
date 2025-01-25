@@ -1,15 +1,24 @@
-import { Star, ClipboardList, Award, Home, Store } from "lucide-react";
+import { Star, ClipboardList, Award, Home, Store, X } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 interface SidebarProps {
   currentFeature: string;
   setCurrentFeature: (feature: string) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (isOpen: boolean) => void;
 }
 
 export const DashboardSidebar = ({
   currentFeature,
   setCurrentFeature,
+  isMobileMenuOpen,
+  setIsMobileMenuOpen,
 }: SidebarProps) => {
+  const handleMenuItemClick = (itemId: string) => {
+    setCurrentFeature(itemId);
+    setIsMobileMenuOpen(false);
+  };
+
   const menuItems = [
     { id: "home", label: "Overview", icon: Home },
     { id: "reviews", label: "Reviews", icon: Star },
@@ -19,12 +28,23 @@ export const DashboardSidebar = ({
   ];
 
   return (
-    <div className="h-screen w-64 bg-black/20 backdrop-blur-sm border-r border-white/10 p-4">
-      <div className="flex flex-col space-y-2">
+    <div
+      className={cn(
+        "fixed inset-y-0 left-0 z-40 w-64 bg-black/20 backdrop-blur-sm border-r border-white/10 p-4 transition-transform duration-300 lg:relative lg:translate-x-0",
+        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+      )}
+    >
+      <button
+        onClick={() => setIsMobileMenuOpen(false)}
+        className="lg:hidden absolute top-4 right-4 p-2 hover:bg-white/10 rounded-lg"
+      >
+        <X className="w-5 h-5 text-white" />
+      </button>
+      <div className="flex flex-col space-y-2 mt-12 lg:mt-0">
         {menuItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => setCurrentFeature(item.id)}
+            onClick={() => handleMenuItemClick(item.id)}
             className={cn(
               "flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors",
               currentFeature === item.id

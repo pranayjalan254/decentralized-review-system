@@ -108,12 +108,12 @@ export default function Store() {
   return (
     <div className="space-y-8">
       {/* Earning Section */}
-      <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+      <div className="bg-black/20 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10">
         <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
           <Coins className="w-6 h-6 text-yellow-400" />
           Earn Tokens
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {earningActivities.map((activity) => (
             <div
               key={activity.title}
@@ -138,14 +138,14 @@ export default function Store() {
       </div>
 
       {/* Redeem Section */}
-      <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+      <div className="bg-black/20 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10">
         <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
           <StoreIcon className="w-6 h-6 text-purple-400" />
           Redeem Rewards
         </h2>
 
         {/* Category Tabs */}
-        <div className="flex gap-4 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-2 sm:gap-4 mb-4 sm:mb-6 overflow-x-auto pb-2 scrollbar-hide">
           {rewardCategories.map((category) => (
             <button
               key={category.id}
@@ -163,7 +163,7 @@ export default function Store() {
         </div>
 
         {/* Rewards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {rewardCategories
             .find((cat) => cat.id === selectedCategory)
             ?.rewards.map((reward, index) => (
