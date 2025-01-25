@@ -16,8 +16,7 @@ export default function Hero() {
     const loginUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     const params = new URLSearchParams({
       client_id: clientId,
-      redirect_uri:
-        "https://decentralized-review-system.vercel.app/auth/google/callback",
+      redirect_uri: "http://localhost:5174/callback",
       response_type: "id_token",
       scope: "openid email profile",
       nonce: ekp.nonce,
