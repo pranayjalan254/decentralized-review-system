@@ -1,0 +1,13 @@
+{
+  "name": "ai-survey-generator",
+  "version": "1.0.0",
+  "description": "AI-powered survey generator using Google Forms and Gemini",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.2.0",
+    "googleapis": "^133.0.0"
+  }
+} 
