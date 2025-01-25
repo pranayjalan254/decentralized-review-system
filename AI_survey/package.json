@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AI-powered survey generator using Google Forms and Gemini",
   "main": "main.js",
+  "type": "module",
   "scripts": {
     "start": "node main.js"
   },

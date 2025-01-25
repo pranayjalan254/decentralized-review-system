@@ -1,65 +1,69 @@
-const { google } = require('googleapis');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-require('dotenv').config();
+import { google } from "googleapis";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from "dotenv";
+import http from "http";
+import url from "url";
+import readline from "readline";
 
-const credentials = {
-    client_id: process.env.GOOGLE_CLIENT_ID,
-    client_secret: process.env.GOOGLE_CLIENT_SECRET,
-    redirect_uri: "http://localhost:8080/"
-};
+dotenv.config();
 
 async function authenticateGoogle() {
-    const SCOPES = ['https://www.googleapis.com/auth/forms.body'];
+  const SCOPES = ["https://www.googleapis.com/auth/forms.body"];
 
-    try {
-        const oAuth2Client = new google.auth.OAuth2(
-            process.env.GOOGLE_CLIENT_ID,
-            process.env.GOOGLE_CLIENT_SECRET,
-            "http://localhost:8080/"
-        );
+  try {
+    const oAuth2Client = new google.auth.OAuth2(
+      "635117093146-1m7ueue994nes8ob8gi1687e4tbft6av.apps.googleusercontent.com",
+      "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",
+      "http://localhost:8080/"
+    );
 
-        const authUrl = oAuth2Client.generateAuthUrl({
-            access_type: 'offline',
-            scope: SCOPES,
+    const authUrl = oAuth2Client.generateAuthUrl({
+      access_type: "offline",
+      scope: SCOPES,
+    });
+
+    console.log("Authorize this app by visiting this url:", authUrl);
+
+    const getAuthCode = () => {
+      return new Promise((resolve, reject) => {
+        const server = http.createServer(async (req, res) => {
+          try {
+            const parsedUrl = url.parse(req.url, true);
+            if (parsedUrl.pathname === "/") {
+              const code = parsedUrl.query.code;
+              res.end("Authentication successful! You can close this window.");
+              server.close();
+              resolve(code);
+            }
+          } catch (err) {
+            reject(err);
+          }
         });
+        server.listen(8080);
+      });
+    };
 
-        console.log('Authorize this app by visiting this url:', authUrl);
-
-        const getAuthCode = () => {
-            return new Promise((resolve, reject) => {
-                const http = require('http');
-                const url = require('url');
-                const server = http.createServer(async (req, res) => {
-                    try {
-                        const parsedUrl = url.parse(req.url, true);
-                        if (parsedUrl.pathname === '/') {
-                            const code = parsedUrl.query.code;
-                            res.end('Authentication successful! You can close this window.');
-                            server.close();
-                            resolve(code);
-                        }
-                    } catch (err) {
-                        reject(err);
-                    }
-                });
-                server.listen(8080);
-            });
-        };
-
-        const code = await getAuthCode();
-        const { tokens } = await oAuth2Client.getToken(code);
-        oAuth2Client.setCredentials(tokens);
-        return oAuth2Client;
-    } catch (error) {
-        console.error('Error during authentication:', error);
-        throw error;
-    }
+    const code = await getAuthCode();
+    const { tokens } = await oAuth2Client.getToken(code);
+    oAuth2Client.setCredentials(tokens);
+    return oAuth2Client;
+  } catch (error) {
+    console.error("Error during authentication:", error);
+    throw error;
+  }
 }
 
-async function generateSurveyQuestions(surveyTopic, audience, totalQuestions, additionalDetails) {
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    
-    const prompt = `
+export async function generateSurveyQuestions(
+  surveyTopic,
+  audience,
+  totalQuestions,
+  additionalDetails
+) {
+  const genAI = new GoogleGenerativeAI(
+    "AIzaSyAh53cfyAhoWNzvZP-1FmdD6gT-gVpwyHQ"
+  );
+
+  const prompt = `
     "You are an expert survey designer with deep knowledge of psychology, user engagement, and data collection best practices. Your task is to create an effective Google Forms survey that maximizes respondent attention, minimizes survey completion time, and ensures the collection of all necessary data for the specified purpose.
 
 Follow these guidelines while generating the survey:
@@ -105,7 +109,6 @@ Allow respondents to review answers before submission.
 Provide an optional section for additional comments/feedback.
 
 
-
     Create a ${surveyTopic} survey with ${totalQuestions} questions for ${audience}.
     Distribute question types as follows:
     - ${Math.floor(totalQuestions * 0.3)} Multiple choice questions
@@ -130,164 +133,165 @@ Provide an optional section for additional comments/feedback.
     Additional context: ${additionalDetails}
     `;
 
-    try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
-        const result = await model.generateContent(prompt);
-        return parseQuestions(await result.response.text());
-    } catch (error) {
-        console.error('Error generating questions:', error);
-        throw error;
-    }
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const result = await model.generateContent(prompt);
+    return parseQuestions(await result.response.text());
+  } catch (error) {
+    console.error("Error generating questions:", error);
+    throw error;
+  }
 }
 
-function parseQuestions(aiResponse) {
-    const questions = [];
-    const sections = aiResponse.split('---').filter(section => section.trim());
+export function parseQuestions(aiResponse) {
+  const questions = [];
+  const sections = aiResponse.split("---").filter((section) => section.trim());
 
-    for (const section of sections) {
-        const lines = section.trim().split('\n');
-        const question = {};
+  for (const section of sections) {
+    const lines = section.trim().split("\n");
+    const question = {};
 
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (line.startsWith('Type:')) {
-                question.type = line.replace('Type:', '').trim().toLowerCase();
-            } else if (line.startsWith('Question:')) {
-                question.question = line.replace('Question:', '').trim();
-            } else if (line.startsWith('Options:')) {
-                question.options = [];
-                i++;
-                while (i < lines.length && lines[i].trim().startsWith('-')) {
-                    question.options.push(lines[i].trim().substring(1).trim());
-                    i++;
-                }
-                i--;
-            } else if (line.startsWith('Scale:')) {
-                const scale = line.replace('Scale:', '').trim();
-                const [min, max] = scale.split('-').map(Number);
-                question.scale = { min, max };
-            } else if (line.startsWith('Labels:')) {
-                const labels = line.replace('Labels:', '').trim().split(' to ');
-                question.labels = { start: labels[0], end: labels[1] };
-            }
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith("Type:")) {
+        question.type = line.replace("Type:", "").trim().toLowerCase();
+      } else if (line.startsWith("Question:")) {
+        question.question = line.replace("Question:", "").trim();
+      } else if (line.startsWith("Options:")) {
+        question.options = [];
+        i++;
+        while (i < lines.length && lines[i].trim().startsWith("-")) {
+          question.options.push(lines[i].trim().substring(1).trim());
+          i++;
         }
-
-        if (question.type && question.question) {
-            questions.push(question);
-        }
+        i--;
+      } else if (line.startsWith("Scale:")) {
+        const scale = line.replace("Scale:", "").trim();
+        const [min, max] = scale.split("-").map(Number);
+        question.scale = { min, max };
+      } else if (line.startsWith("Labels:")) {
+        const labels = line.replace("Labels:", "").trim().split(" to ");
+        question.labels = { start: labels[0], end: labels[1] };
+      }
     }
 
-    return questions;
-}
-
-async function createGoogleForm(questions, formTitle) {
-    try {
-        const auth = await authenticateGoogle();
-        const forms = google.forms({ version: 'v1', auth });
-
-        const form = await forms.forms.create({
-            requestBody: {
-                info: { title: formTitle, documentTitle: formTitle }
-            }
-        });
-
-        const formId = form.data.formId;
-        const requests = questions.map((q, idx) => {
-            const request = {
-                createItem: {
-                    item: {
-                        title: q.question,
-                        questionItem: {
-                            question: { required: false }
-                        }
-                    },
-                    location: { index: idx }
-                }
-            };
-
-            switch (q.type) {
-                case 'multiple_choice':
-                    request.createItem.item.questionItem.question.choiceQuestion = {
-                        type: 'RADIO',
-                        options: q.options.map(opt => ({ value: opt })),
-                        shuffle: false
-                    };
-                    break;
-                case 'checkbox':
-                    request.createItem.item.questionItem.question.choiceQuestion = {
-                        type: 'CHECKBOX',
-                        options: q.options.map(opt => ({ value: opt })),
-                        shuffle: false
-                    };
-                    break;
-                case 'linear_scale':
-                    request.createItem.item.questionItem.question.scaleQuestion = {
-                        low: q.scale?.min || 1,
-                        high: q.scale?.max || 5,
-                        lowLabel: q.labels?.start || 'Poor',
-                        highLabel: q.labels?.end || 'Excellent'
-                    };
-                    break;
-                case 'paragraph':
-                    request.createItem.item.questionItem.question.textQuestion = {
-                        paragraph: true
-                    };
-                    break;
-                default: // short_answer
-                    request.createItem.item.questionItem.question.textQuestion = {
-                        paragraph: false
-                    };
-            }
-
-            return request;
-        });
-
-        await forms.forms.batchUpdate({
-            formId,
-            requestBody: { requests }
-        });
-
-        return `https://docs.google.com/forms/d/${formId}/viewform`;
-    } catch (error) {
-        console.error('Error creating form:', error);
-        throw error;
+    if (question.type && question.question) {
+      questions.push(question);
     }
+  }
+
+  return questions;
 }
 
-async function main() {
-    const readline = require('readline').createInterface({
-        input: process.stdin,
-        output: process.stdout
+export async function createGoogleForm(questions, formTitle) {
+  try {
+    const auth = await authenticateGoogle();
+    const forms = google.forms({ version: "v1", auth });
+
+    const form = await forms.forms.create({
+      requestBody: {
+        info: { title: formTitle, documentTitle: formTitle },
+      },
     });
 
-    const question = (prompt) => new Promise((resolve) => readline.question(prompt, resolve));
+    const formId = form.data.formId;
+    const requests = questions.map((q, idx) => {
+      const request = {
+        createItem: {
+          item: {
+            title: q.question,
+            questionItem: {
+              question: { required: false },
+            },
+          },
+          location: { index: idx },
+        },
+      };
 
-    try {
-        const surveyTopic = await question('Enter the survey topic: ');
-        const audience = await question('Enter the target audience: ');
-        const totalQuestions = parseInt(await question('Enter the number of questions: '), 10);
-        const additionalDetails = await question('Enter any additional requirements (optional): ');
+      switch (q.type) {
+        case "multiple_choice":
+          request.createItem.item.questionItem.question.choiceQuestion = {
+            type: "RADIO",
+            options: q.options.map((opt) => ({ value: opt })),
+            shuffle: false,
+          };
+          break;
+        case "checkbox":
+          request.createItem.item.questionItem.question.choiceQuestion = {
+            type: "CHECKBOX",
+            options: q.options.map((opt) => ({ value: opt })),
+            shuffle: false,
+          };
+          break;
+        case "linear_scale":
+          request.createItem.item.questionItem.question.scaleQuestion = {
+            low: q.scale?.min || 1,
+            high: q.scale?.max || 5,
+            lowLabel: q.labels?.start || "Poor",
+            highLabel: q.labels?.end || "Excellent",
+          };
+          break;
+        case "paragraph":
+          request.createItem.item.questionItem.question.textQuestion = {
+            paragraph: true,
+          };
+          break;
+        default:
+          request.createItem.item.questionItem.question.textQuestion = {
+            paragraph: false,
+          };
+      }
 
-        console.log('\nGenerating survey questions...');
-        const questions = await generateSurveyQuestions(surveyTopic, audience, totalQuestions, additionalDetails);
-        
-        console.log('\nCreating Google Form...');
-        const formUrl = await createGoogleForm(questions, `${surveyTopic} Survey`);
-        
-        console.log(`\nForm created successfully! Access it here: ${formUrl}`);
-    } catch (error) {
-        console.error('An error occurred:', error);
-    } finally {
-        readline.close();
-    }
+      return request;
+    });
+
+    await forms.forms.batchUpdate({
+      formId,
+      requestBody: { requests },
+    });
+
+    return `https://docs.google.com/forms/d/${formId}/viewform`;
+  } catch (error) {
+    console.error("Error creating form:", error);
+    throw error;
+  }
 }
 
-if (require.main === module) {
-    main();
-}
+export async function main() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
 
-module.exports = {
-    generateSurveyQuestions,
-    createGoogleForm,
-    authenticateGoogle
-};
+  const question = (prompt) =>
+    new Promise((resolve) => rl.question(prompt, resolve));
+
+  try {
+    const surveyTopic = await question("Enter the survey topic: ");
+    const audience = await question("Enter the target audience: ");
+    const totalQuestions = parseInt(
+      await question("Enter the number of questions: "),
+      10
+    );
+    const additionalDetails = await question(
+      "Enter any additional requirements (optional): "
+    );
+
+    console.log("\nGenerating survey questions...");
+    const questions = await generateSurveyQuestions(
+      surveyTopic,
+      audience,
+      totalQuestions,
+      additionalDetails
+    );
+
+    console.log("\nCreating Google Form...");
+    const formUrl = await createGoogleForm(questions, `${surveyTopic} Survey`);
+
+    console.log(`\nForm created successfully! Access it here: ${formUrl}`);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  } finally {
+    rl.close();
+  }
+}
