@@ -1,7 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Star, MapPin, Flag, ThumbsUp } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Review } from "../../../types/place";
+import {
+  submitReview,
+  getReviewCount,
+  getReviews,
+} from "../../../utils/blockchain";
+import { getLocalKeylessAccount } from "../../../lib/keyless";
+
+const account = getLocalKeylessAccount();
+const accountAddress = account?.accountAddress.toString();
 
 interface PlaceModalProps {
   place: any;
@@ -18,18 +27,52 @@ export const PlaceModal = ({
 }: PlaceModalProps) => {
   const [isWritingReview, setIsWritingReview] = useState(false);
   const [newReview, setNewReview] = useState({ rating: 0, content: "" });
+  const [reviewCount, setReviewCount] = useState<number>(0);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
-  // Mock data - replace with actual data from your backend
-  const mockReviews: Review[] = [
-    {
-      id: "1",
-      author: "Jane Doe",
-      rating: 4,
-      content: "Great place! Highly recommend.",
-      createdAt: new Date("2024-01-15"),
-      helpful: 12,
-    },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      if (place?.displayName) {
+        try {
+          const [count, fetchedReviews] = await Promise.all([
+            getReviewCount(place.displayName),
+            getReviews(place.displayName),
+          ]);
+          setReviewCount(count);
+          setReviews(fetchedReviews);
+        } catch (error) {
+          console.error("Error fetching review data:", error);
+        }
+      }
+    };
+
+    if (isOpen) {
+      fetchData();
+    }
+  }, [isOpen, place?.displayName]);
+
+  const handleReviewSubmit = async (
+    reviewerAddress: string,
+    establishmentName: string,
+    establishmentType: string,
+    rating: number,
+    comment: string
+  ) => {
+    try {
+      await submitReview({
+        reviewerAddress,
+        establishmentName,
+        establishmentType,
+        rating,
+        comment,
+      });
+      // Reset form after successful submission
+      setNewReview({ rating: 0, content: "" });
+      setIsWritingReview(false);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    }
+  };
 
   if (!place) return null;
 
@@ -177,8 +220,13 @@ export const PlaceModal = ({
                       </button>
                       <button
                         onClick={() => {
-                          // Handle submit review
-                          setIsWritingReview(false);
+                          handleReviewSubmit(
+                            accountAddress || "",
+                            place.displayName || "",
+                            place.types?.[0] || "default",
+                            newReview.rating,
+                            newReview.content
+                          );
                         }}
                         className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all"
                       >
@@ -197,9 +245,15 @@ export const PlaceModal = ({
 
               {/* Reviews List */}
               <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-                <h3 className="text-xl font-semibold text-white">Reviews</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-semibold text-white">Reviews</h3>
+                  <span className="text-sm text-gray-400">
+                    {reviewCount} {reviewCount === 1 ? "review" : "reviews"} on
+                    chain
+                  </span>
+                </div>
                 <div className="space-y-4">
-                  {mockReviews.map((review) => (
+                  {reviews.map((review) => (
                     <div
                       key={review.id}
                       className="bg-white/5 rounded-lg p-4 space-y-3"
