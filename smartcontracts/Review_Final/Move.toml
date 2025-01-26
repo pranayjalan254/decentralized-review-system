@@ -1,0 +1,16 @@
+[package]
+name = "review3"
+version = "1.0.0"
+authors = []
+
+[addresses]
+addr="f42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485"
+
+[dev-addresses]
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-framework.git"
+rev = "devnet"
+subdir = "aptos-framework"
+
+[dev-dependencies]
