@@ -1,1 +1,1 @@
-export declare const balance: (address: string) => Promise<number>;
+export declare function getBalance(address: string): Promise<number>;

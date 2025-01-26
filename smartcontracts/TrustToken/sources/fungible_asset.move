@@ -52,7 +52,12 @@ module aptos_asset::fungible_asset{
         let asset_address = object::create_object_address(&@aptos_asset, ASSET_SYMBOL);
         object::address_to_object<Metadata>(asset_address)
     }
-
+    
+#[view]
+    public fun get_balance(account: address): u64 {
+    let asset = get_metadata();
+    primary_fungible_store::balance(account, asset)
+}
     // :!:>mint
     /// Mint as the owner of metadata object.
     public entry fun mint(admin: &signer, to: address, amount: u64) acquires ManagedFungibleAsset {

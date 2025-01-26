@@ -3,7 +3,6 @@ import { Shield, Star, Store } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
-
 import useEphemeralKeyPair from "../Auth/Auth";
 
 export default function Hero() {
@@ -41,7 +40,7 @@ export default function Hero() {
 
   return (
     <div ref={containerRef} className="relative min-h-screen">
-      <div className="relative container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-16 md:pb-24">
+      <div className="relative container mx-auto px-4 md:px-6 pt-10 md:pt-24 pb-16 md:pb-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

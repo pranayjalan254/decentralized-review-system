@@ -4,7 +4,7 @@ import { Star, ClipboardList, Award, Coins, Gift, Coffee, Utensils, Hotel, Dumbb
 import { burn } from "../../../utils/burn";
 import toast from "react-hot-toast";
 import { getLocalKeylessAccount } from "../../../lib/keyless";
-import { useTokenBalance } from "../../../contexts/TokenContext";
+import { getBalance } from "../../../utils/balance";
 const earningActivities = [
     {
         title: "Data Labelling",
@@ -110,7 +110,7 @@ const mockCouponCodes = {
 };
 export default function Store() {
     const [selectedCategory, setSelectedCategory] = useState(rewardCategories[0].id);
-    const { balance, setBalance } = useTokenBalance();
+    const [balance, setBalance] = useState(0);
     const [showCouponModal, setShowCouponModal] = useState(false);
     const [currentCoupon, setCurrentCoupon] = useState("");
     const [isCopied, setIsCopied] = useState(false);
@@ -122,6 +122,24 @@ export default function Store() {
     const account = getLocalKeylessAccount();
     const accountAddress = account?.accountAddress.toString();
     useEffect(() => {
+        const fetchBalance = async () => {
+            if (accountAddress) {
+                try {
+                    const currentBalance = await getBalance(accountAddress);
+                    setBalance(currentBalance);
+                }
+                catch (error) {
+                    console.error("Error fetching balance:", error);
+                    toast.error("Failed to fetch balance");
+                }
+            }
+        };
+        fetchBalance();
+        // Set up polling every 30 seconds
+        const intervalId = setInterval(fetchBalance, 30000);
+        return () => clearInterval(intervalId);
+    }, [accountAddress]);
+    useEffect(() => {
         localStorage.setItem("redeemedVouchers", JSON.stringify(redeemedVouchers));
     }, [redeemedVouchers]);
     const handleRedeem = async (reward) => {
@@ -132,8 +150,11 @@ export default function Store() {
         setProcessingRewards((prev) => ({ ...prev, [reward.title]: true }));
         try {
             await burn(accountAddress || "", reward.tokens);
-            // @ts-ignore
-            setBalance((prev) => prev - reward.tokens);
+            // After burning, fetch the new balance
+            if (accountAddress) {
+                const newBalance = await getBalance(accountAddress);
+                setBalance(newBalance);
+            }
             const couponCode = mockCouponCodes[reward.title];
             if (!couponCode) {
                 throw new Error("Coupon code not found");

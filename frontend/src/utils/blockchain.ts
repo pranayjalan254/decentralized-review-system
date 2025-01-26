@@ -51,7 +51,7 @@ export async function submitReview({
     await aptos.waitForTransaction({ transactionHash: response.hash });
     console.log(reviewerAddress);
     // Mint tokens for the reviewer
-    await main(reviewerAddress, 2e9);
+    await main(reviewerAddress, 20);
     return response;
   } catch (error) {
     console.error("Error submitting review:", error);
