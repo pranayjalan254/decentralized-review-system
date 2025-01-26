@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Shield, Star, Users } from "lucide-react";
+import { Shield, Star, Store } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
@@ -91,7 +91,7 @@ export default function Hero() {
           <div className="mt-16 md:mt-32 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 px-4 md:px-0">
             <FeatureCard
               icon={<Shield className="w-12 h-12 text-purple-400 mb-4" />}
-              title="Soulbound Tokens"
+              title="$TRUST Tokens"
               description="Earn non-transferable tokens for verified reviews, proving your contributions on-chain."
               delay={0.5}
               direction="left"
@@ -99,16 +99,16 @@ export default function Hero() {
 
             <FeatureCard
               icon={<Star className="w-12 h-12 text-yellow-400 mb-4" />}
-              title="AI-Powered Validation"
-              description="Advanced AI systems detect and prevent fraudulent reviews in real-time."
+              title="AI-Powered Surveys"
+              description="AI-Tuned Surveys, Tailored to Your Business Needs."
               delay={0.7}
               direction="up"
             />
 
             <FeatureCard
-              icon={<Users className="w-12 h-12 text-green-400 mb-4" />}
-              title="Community Governance"
-              description="Be part of the decision-making process through our DAO structure."
+              icon={<Store className="w-12 h-12 text-green-400 mb-4" />}
+              title="Store"
+              description="Earn Vouchers & Rewards by Exchanging $Trust."
               delay={0.9}
               direction="right"
             />

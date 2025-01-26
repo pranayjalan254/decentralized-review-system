@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import LandingPage from "./components/LandingPage/LandingPage";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Callback from "./components/Auth/Callback";
@@ -12,6 +13,16 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/callback" element={<Callback />} />
         </Routes>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: "#1F2937",
+              color: "#fff",
+            },
+          }}
+        />
       </div>
     </BrowserRouter>
   );
