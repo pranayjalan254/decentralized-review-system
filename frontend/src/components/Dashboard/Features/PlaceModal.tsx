@@ -2,11 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Star, MapPin, Flag, ThumbsUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Review } from "../../../types/place";
-import {
-  submitReview,
-  getReviewCount,
-  getReviews,
-} from "../../../utils/blockchain";
+import { submitReview, getReviewCount } from "../../../utils/blockchain";
 import { getLocalKeylessAccount } from "../../../lib/keyless";
 
 const account = getLocalKeylessAccount();
@@ -28,26 +24,21 @@ export const PlaceModal = ({
   const [isWritingReview, setIsWritingReview] = useState(false);
   const [newReview, setNewReview] = useState({ rating: 0, content: "" });
   const [reviewCount, setReviewCount] = useState<number>(0);
-  const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchReviewCount = async () => {
       if (place?.displayName) {
         try {
-          const [count, fetchedReviews] = await Promise.all([
-            getReviewCount(place.displayName),
-            getReviews(place.displayName),
-          ]);
+          const count = await getReviewCount(place.displayName);
           setReviewCount(count);
-          setReviews(fetchedReviews);
         } catch (error) {
-          console.error("Error fetching review data:", error);
+          console.error("Error fetching review count:", error);
         }
       }
     };
 
     if (isOpen) {
-      fetchData();
+      fetchReviewCount();
     }
   }, [isOpen, place?.displayName]);
 
@@ -73,6 +64,17 @@ export const PlaceModal = ({
       console.error("Error submitting review:", error);
     }
   };
+
+  const mockReviews: Review[] = [
+    {
+      id: "1",
+      author: "Jane Doe",
+      rating: 4,
+      content: "Great place! Highly recommend.",
+      createdAt: new Date("2024-01-15"),
+      helpful: 12,
+    },
+  ];
 
   if (!place) return null;
 
@@ -253,7 +255,7 @@ export const PlaceModal = ({
                   </span>
                 </div>
                 <div className="space-y-4">
-                  {reviews.map((review) => (
+                  {mockReviews.map((review) => (
                     <div
                       key={review.id}
                       className="bg-white/5 rounded-lg p-4 space-y-3"
