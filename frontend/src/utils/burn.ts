@@ -10,7 +10,7 @@ const moduleaddress =
   "0x82e8de6554ba7ed96be0529a866bbb68f66404b465bda125a5cb6a4d10737c3e";
 const modulecode = "fungible_asset";
 const config = new AptosConfig({
-  network: Network.TESTNET,
+  network: Network.DEVNET,
   fullnode: "https://fullnode.devnet.aptoslabs.com/v1",
 });
 

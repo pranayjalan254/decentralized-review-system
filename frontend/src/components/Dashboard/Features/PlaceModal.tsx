@@ -65,7 +65,6 @@ export default function PlaceModal({
   const handleReviewSubmit = async (
     reviewerAddress: string,
     establishmentName: string,
-    establishmentType: string,
     rating: number,
     comment: string
   ) => {
@@ -83,7 +82,6 @@ export default function PlaceModal({
       await submitReview({
         reviewerAddress,
         establishmentName,
-        establishmentType,
         rating,
         comment,
       });
@@ -261,7 +259,6 @@ export default function PlaceModal({
                           handleReviewSubmit(
                             accountAddress || "",
                             place.displayName || "",
-                            place.types?.[0] || "default",
                             newReview.rating,
                             newReview.content
                           );

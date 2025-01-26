@@ -19,7 +19,6 @@ const account = Account.fromPrivateKey({ privateKey });
 export interface SubmitReviewParams {
   reviewerAddress: string;
   establishmentName: string;
-  establishmentType: string;
   rating: number;
   comment: string;
 }
@@ -27,7 +26,6 @@ export interface SubmitReviewParams {
 export async function submitReview({
   reviewerAddress,
   establishmentName,
-  establishmentType,
   rating,
   comment,
 }: SubmitReviewParams) {
@@ -36,11 +34,10 @@ export async function submitReview({
     const transaction = await aptos.transaction.build.simple({
       sender: account.accountAddress,
       data: {
-        function: `${CONTRACT_ADDRESS}::review2::submit_review`,
+        function: `${CONTRACT_ADDRESS}::review4::submit_review`,
         functionArguments: [
           reviewerAddress,
           establishmentName,
-          establishmentType,
           rating,
           comment,
         ],
@@ -52,6 +49,7 @@ export async function submitReview({
       transaction,
     });
     await aptos.waitForTransaction({ transactionHash: response.hash });
+    console.log(reviewerAddress);
     // Mint tokens for the reviewer
     await main(reviewerAddress, 2e9);
     return response;
@@ -66,7 +64,7 @@ export async function getReviewCount(establishmentName: string) {
     const response = await aptos.view({
       payload: {
         function:
-          "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485::review2::get_review_count",
+          "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485::review4::get_review_count",
         typeArguments: [],
         functionArguments: [CONTRACT_ADDRESS, establishmentName],
       },
@@ -86,7 +84,7 @@ export async function getAverageRating(
     const result = await aptos.view({
       payload: {
         function:
-          "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485::review2::get_average_rating",
+          "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485::review4::get_average_rating",
         typeArguments: [],
         functionArguments: [CONTRACT_ADDRESS, establishmentName],
       },
@@ -102,22 +100,24 @@ export async function getAllReviews(establishmentName: string) {
   try {
     const result = await aptos.view({
       payload: {
-        function:
-          "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485::review2::get_all_reviews",
+        function: `${CONTRACT_ADDRESS}::review4::get_all_reviews`,
         typeArguments: [],
         functionArguments: [CONTRACT_ADDRESS, establishmentName],
       },
     });
+    if (!Array.isArray(result[0])) {
+      return [];
+    }
 
-    return result?.map((review: any) => ({
+    return result[0].map((review: any) => ({
       reviewer: review.reviewer,
+      establishmentName: review.establishment_name,
       rating: Number(review.rating),
       comment: review.comment,
       timestamp: Number(review.timestamp),
-      establishmentName: review.establishment_name,
     }));
   } catch (error) {
     console.error("Error getting reviews:", error);
-    return [];
+    throw error; // Let the caller handle the error
   }
 }

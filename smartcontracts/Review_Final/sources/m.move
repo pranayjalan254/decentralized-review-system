@@ -1,4 +1,4 @@
-module addr::review2 {
+module addr::review4 {
     use std::string::{String, utf8};
     use aptos_framework::event;
     use aptos_framework::account;
@@ -53,7 +53,7 @@ module addr::review2 {
     // Submit a review
     public entry fun submit_review(
         owner: &signer,
-        reviewer_address: address,
+        reviewer_address: address, 
         establishment_name: String,
         rating: u8,
         comment: String

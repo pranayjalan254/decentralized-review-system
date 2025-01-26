@@ -78,6 +78,9 @@ const rewardCategories = [
       { title: "Cult.fit Pass", tokens: 1500, available: true },
       { title: "Gold's Gym Monthly", tokens: 2500, available: true },
       { title: "Personal Training Session", tokens: 1000, available: true },
+      { title: "Personal Training Session1", tokens: 10, available: true },
+      { title: "Personal Training Session2", tokens: 10, available: true },
+      { title: "Personal Training Session3", tokens: 1000, available: true },
     ],
   },
   {
@@ -121,6 +124,7 @@ const mockCouponCodes: { [key: string]: string } = {
   "Netflix Subscription": "NETFLIX-1M-24",
   "Spotify Premium": "SPOTIFY-3M-24",
   "Steam Wallet Code": "STEAM-WALLET-24",
+  "Personal Training Session1": "sdfngihrh",
 };
 
 export default function Store() {

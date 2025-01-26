@@ -7,7 +7,7 @@ import {
 } from "@aptos-labs/ts-sdk";
 
 const config = new AptosConfig({
-  network: Network.TESTNET,
+  network: Network.DEVNET,
   fullnode: "https://fullnode.devnet.aptoslabs.com/v1",
 });
 
@@ -41,7 +41,9 @@ export const main = async (recipientAddress: string, mintAmount: number) => {
   try {
     // Initialize Aptos client
     const aptos = new Aptos(config);
-    const privateKey = new Ed25519PrivateKey("");
+    const privateKey = new Ed25519PrivateKey(
+      "0x15d0ddca972c8168bf5fed465622744ccf9cc668c965f92b21a4d492ac53e053"
+    );
     const sender = Account.fromPrivateKey({ privateKey });
 
     const txHash = await mintTransaction(
