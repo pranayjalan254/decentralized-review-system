@@ -6,9 +6,12 @@ import {
   Dumbbell,
   Loader2,
   Coffee,
+  Star,
 } from "lucide-react";
-import { useTokenBalance } from "../../../contexts/TokenContext";
+import { getBalance } from "../../../utils/balance";
 import PlaceModal from "./PlaceModal";
+import { getLocalKeylessAccount } from "../../../lib/keyless";
+import { getAverageRating } from "../../../utils/blockchain";
 
 interface PlaceResult {
   displayName: string;
@@ -25,7 +28,7 @@ interface CachedData {
 const CACHE_DURATION = 5 * 60 * 1000;
 
 export default function Review() {
-  const { balance, setBalance } = useTokenBalance();
+  const [_balance, setBalance] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("restaurants");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
@@ -37,6 +40,9 @@ export default function Review() {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cachedPlaces, setCachedPlaces] = useState<Record<string, CachedData>>(
+    {}
+  );
+  const [placeRatings, setPlaceRatings] = useState<{ [key: string]: number }>(
     {}
   );
 
@@ -67,6 +73,9 @@ export default function Review() {
     },
   ];
 
+  const account = getLocalKeylessAccount();
+  const accountAddress = account?.accountAddress.toString();
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -89,6 +98,24 @@ export default function Review() {
       getNearbyPlaces();
     }
   }, [userLocation, selectedCategory]);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (accountAddress) {
+        try {
+          const currentBalance = await getBalance(accountAddress);
+          setBalance(currentBalance);
+        } catch (error) {
+          console.error("Error fetching balance:", error);
+        }
+      }
+    };
+
+    fetchBalance();
+    const intervalId = setInterval(fetchBalance, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [accountAddress]);
 
   const getCachedData = (key: string): PlaceResult[] | null => {
     const cached = cachedPlaces[key];
@@ -228,10 +255,30 @@ export default function Review() {
     return distance.toFixed(1);
   };
 
-  const handleReviewSubmit = () => {
-    // 20 tokens added to balance
-    setBalance(balance + 20);
+  const handleReviewSubmit = async () => {
+    if (accountAddress) {
+      // Fetch updated balance after review submission
+      const newBalance = await getBalance(accountAddress);
+      setBalance(newBalance);
+    }
   };
+
+  useEffect(() => {
+    const fetchRatings = async () => {
+      const ratings: { [key: string]: number } = {};
+      for (const place of searchResults) {
+        if (place.displayName) {
+          const rating = await getAverageRating(place.displayName);
+          ratings[place.displayName] = rating;
+        }
+      }
+      setPlaceRatings(ratings);
+    };
+
+    if (searchResults.length > 0) {
+      fetchRatings();
+    }
+  }, [searchResults]);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -307,6 +354,17 @@ export default function Review() {
                     <p className="text-gray-300 text-sm line-clamp-2">
                       {place.formattedAddress}
                     </p>
+                    {placeRatings[place.displayName] > 0 && (
+                      <div className="flex items-center gap-1">
+                        <Star
+                          className="w-4 h-4 text-yellow-400"
+                          fill="currentColor"
+                        />
+                        <span className="text-yellow-400">
+                          {placeRatings[place.displayName].toFixed(1)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="absolute bottom-4 inset-x-4 flex justify-between items-center">
                     {calculateDistance(place.location) && (

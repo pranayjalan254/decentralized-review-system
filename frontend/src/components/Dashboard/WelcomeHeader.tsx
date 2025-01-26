@@ -1,6 +1,6 @@
 import { Copy, CheckCircle, Wallet, Coins } from "lucide-react";
-import { useState } from "react";
-import { useTokenBalance } from "../../contexts/TokenContext";
+import { useState, useEffect } from "react";
+import { getBalance } from "../../utils/balance";
 
 interface WelcomeHeaderProps {
   userName: string;
@@ -14,7 +14,23 @@ export const WelcomeHeader = ({
   userImage,
 }: WelcomeHeaderProps) => {
   const [copied, setCopied] = useState(false);
-  const { balance } = useTokenBalance();
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const currentBalance = await getBalance(accountAddress);
+        setBalance(currentBalance);
+      } catch (error) {
+        console.error("Error fetching balance:", error);
+      }
+    };
+
+    fetchBalance();
+    const intervalId = setInterval(fetchBalance, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [accountAddress]);
 
   const copyAddress = () => {
     navigator.clipboard.writeText(accountAddress);

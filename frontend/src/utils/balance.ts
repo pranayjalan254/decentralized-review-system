@@ -18,7 +18,7 @@ export async function getBalance(address: string) {
         functionArguments: [address],
       },
     });
-    return Number(response[0]) / 10e8;
+    return Number(response[0]);
   } catch (error) {
     console.error("Error getting review count:", error);
     throw error;

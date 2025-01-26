@@ -62,6 +62,15 @@ export default function PlaceModal({
     }
   }, [isOpen, place?.displayName]);
 
+  // Add cleanup on modal close
+  useEffect(() => {
+    if (!isOpen) {
+      setReviews([]);
+      setAverageRating(0);
+      setReviewCount(0);
+    }
+  }, [isOpen]);
+
   const handleReviewSubmit = async (
     reviewerAddress: string,
     establishmentName: string,
@@ -173,13 +182,15 @@ export default function PlaceModal({
                 {place.displayName}
               </h2>
               <div className="flex items-center gap-4 mt-2">
-                {place.rating && (
+                {averageRating > 0 && (
                   <div className="flex items-center gap-1 bg-yellow-400/10 px-2 py-1 rounded">
                     <Star
                       className="w-4 h-4 text-yellow-400"
                       fill="currentColor"
                     />
-                    <span className="text-yellow-400">{place.rating}</span>
+                    <span className="text-yellow-400">
+                      {averageRating.toFixed(2)}
+                    </span>
                   </div>
                 )}
                 {calculateDistance() && (
@@ -291,17 +302,6 @@ export default function PlaceModal({
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-white">Reviews</h3>
                   <div className="flex items-center gap-4">
-                    {averageRating > 0 && (
-                      <div className="flex items-center gap-1">
-                        <Star
-                          className="w-4 h-4 text-yellow-400"
-                          fill="currentColor"
-                        />
-                        <span className="text-white">
-                          {averageRating.toFixed(1)}
-                        </span>
-                      </div>
-                    )}
                     <span className="text-sm text-gray-400">
                       {reviewCount} {reviewCount === 1 ? "review" : "reviews"}{" "}
                       on chain
@@ -316,9 +316,9 @@ export default function PlaceModal({
                 ) : (
                   <div className="space-y-4">
                     {reviews.length > 0 ? (
-                      reviews.map((review, index) => (
+                      reviews.map((review) => (
                         <div
-                          key={index}
+                          key={review.id}
                           className="bg-white/5 rounded-lg p-4 space-y-3"
                         >
                           <div className="flex justify-between items-start">

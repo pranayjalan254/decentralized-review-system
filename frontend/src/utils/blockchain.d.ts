@@ -11,6 +11,7 @@ export declare function submitReview({ reviewerAddress, establishmentName, ratin
 export declare function getReviewCount(establishmentName: string): Promise<number>;
 export declare function getAverageRating(establishmentName: string): Promise<number>;
 export declare function getAllReviews(establishmentName: string): Promise<{
+    id: string;
     reviewer: any;
     establishmentName: any;
     rating: number;

@@ -110,6 +110,7 @@ export async function getAllReviews(establishmentName: string) {
     }
 
     return result[0].map((review: any) => ({
+      id: `${review.reviewer}-${review.timestamp}-${review.establishment_name}`, // Add unique ID
       reviewer: review.reviewer,
       establishmentName: review.establishment_name,
       rating: Number(review.rating),

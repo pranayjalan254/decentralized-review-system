@@ -15,7 +15,6 @@ export async function getBalance(address) {
                 functionArguments: [address],
             },
         });
-        console.log("Balance response:", Number(response[0]));
         return Number(response[0]);
     }
     catch (error) {
