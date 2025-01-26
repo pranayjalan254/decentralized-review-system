@@ -24,21 +24,21 @@ export default function Features() {
           <FeatureBlock
             icon={<ClipboardCheck className="w-16 h-16 text-purple-500" />}
             title="Verified Reviews"
-            description="Leave authentic reviews for places you've visited, verified through ZK proofs and location data."
+            description="Leave Authentic Reviews, Verified with ZK Proofs and Location Data."
             delay={0.3}
           />
 
           <FeatureBlock
             icon={<BarChart3 className="w-16 h-16 text-pink-500" />}
             title="Business Surveys"
-            description="Businesses can create targeted surveys and reward participants with tokens for valuable feedback."
+            description="Create personalized google forms and surveys in seconds"
             delay={0.5}
           />
 
           <FeatureBlock
             icon={<Target className="w-16 h-16 text-blue-500" />}
             title="Data Labeling"
-            description="Earn rewards by participating in data labeling tasks with customizable bounties."
+            description="Help train AI models by solving captchas and labeling data"
             delay={0.7}
           />
         </div>

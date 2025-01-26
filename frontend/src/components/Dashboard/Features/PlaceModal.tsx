@@ -1,7 +1,13 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Star, MapPin, Flag, ThumbsUp } from "lucide-react";
-import { useState } from "react";
+import { X, Star, MapPin, Flag, ThumbsUp, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { Review } from "../../../types/place";
+import { submitReview, getReviewCount } from "../../../utils/blockchain";
+import { getLocalKeylessAccount } from "../../../lib/keyless";
+
+const account = getLocalKeylessAccount();
+const accountAddress = account?.accountAddress.toString();
 
 interface PlaceModalProps {
   place: any;
@@ -18,8 +24,66 @@ export const PlaceModal = ({
 }: PlaceModalProps) => {
   const [isWritingReview, setIsWritingReview] = useState(false);
   const [newReview, setNewReview] = useState({ rating: 0, content: "" });
+  const [reviewCount, setReviewCount] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Mock data - replace with actual data from your backend
+  useEffect(() => {
+    const fetchReviewCount = async () => {
+      if (place?.displayName) {
+        try {
+          const count = await getReviewCount(place.displayName);
+          setReviewCount(count);
+        } catch (error) {
+          console.error("Error fetching review count:", error);
+        }
+      }
+    };
+
+    if (isOpen) {
+      fetchReviewCount();
+    }
+  }, [isOpen, place?.displayName]);
+
+  const handleReviewSubmit = async (
+    reviewerAddress: string,
+    establishmentName: string,
+    establishmentType: string,
+    rating: number,
+    comment: string
+  ) => {
+    if (!rating) {
+      toast.error("Please select a rating");
+      return;
+    }
+    if (!comment.trim()) {
+      toast.error("Please write a review");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await submitReview({
+        reviewerAddress,
+        establishmentName,
+        establishmentType,
+        rating,
+        comment,
+      });
+      toast.success("Review submitted successfully! You earned 500 tokens!");
+      setNewReview({ rating: 0, content: "" });
+      setIsWritingReview(false);
+
+      // Refresh review count
+      const newCount = await getReviewCount(establishmentName);
+      setReviewCount(newCount);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast.error("Failed to submit review. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const mockReviews: Review[] = [
     {
       id: "1",
@@ -128,12 +192,13 @@ export const PlaceModal = ({
                 {!isWritingReview ? (
                   <button
                     onClick={() => setIsWritingReview(true)}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all"
+                    disabled={isSubmitting}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-50"
                   >
                     Write a Review
                   </button>
                 ) : (
-                  <div className="space-y-4 bg-white/5 p-4 rounded-lg">
+                  <div className="w-full space-y-4 bg-white/5 p-4 rounded-lg">
                     <div className="flex gap-2">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -141,11 +206,12 @@ export const PlaceModal = ({
                           onClick={() =>
                             setNewReview((prev) => ({ ...prev, rating: star }))
                           }
+                          disabled={isSubmitting}
                           className={`p-1 ${
                             star <= newReview.rating
                               ? "text-yellow-400"
                               : "text-gray-400"
-                          }`}
+                          } disabled:opacity-50`}
                         >
                           <Star
                             className="w-6 h-6"
@@ -164,25 +230,40 @@ export const PlaceModal = ({
                           content: e.target.value,
                         }))
                       }
+                      disabled={isSubmitting}
                       placeholder="Write your review..."
-                      className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                      className="w-full min-h-[120px] bg-black/20 border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 resize-y disabled:opacity-50"
                       rows={4}
                     />
                     <div className="flex gap-2">
                       <button
                         onClick={() => setIsWritingReview(false)}
-                        className="px-4 py-2 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-all"
+                        disabled={isSubmitting}
+                        className="px-4 py-2 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-all disabled:opacity-50"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={() => {
-                          // Handle submit review
-                          setIsWritingReview(false);
+                          handleReviewSubmit(
+                            accountAddress || "",
+                            place.displayName || "",
+                            place.types?.[0] || "default",
+                            newReview.rating,
+                            newReview.content
+                          );
                         }}
-                        className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all"
+                        disabled={isSubmitting}
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-50"
                       >
-                        Submit Review
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Submitting...
+                          </>
+                        ) : (
+                          "Submit Review"
+                        )}
                       </button>
                     </div>
                   </div>
@@ -197,7 +278,13 @@ export const PlaceModal = ({
 
               {/* Reviews List */}
               <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-                <h3 className="text-xl font-semibold text-white">Reviews</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-semibold text-white">Reviews</h3>
+                  <span className="text-sm text-gray-400">
+                    {reviewCount} {reviewCount === 1 ? "review" : "reviews"} on
+                    chain
+                  </span>
+                </div>
                 <div className="space-y-4">
                   {mockReviews.map((review) => (
                     <div

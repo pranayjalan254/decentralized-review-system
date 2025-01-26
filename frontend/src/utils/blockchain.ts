@@ -1,11 +1,20 @@
-import { Aptos, Network, AptosConfig } from "@aptos-labs/ts-sdk";
+import {
+  Aptos,
+  Network,
+  AptosConfig,
+  Ed25519PrivateKey,
+  Account,
+} from "@aptos-labs/ts-sdk";
+import { main } from "./mint";
 
-// Initialize Aptos client
 const config = new AptosConfig({ network: Network.TESTNET });
 export const aptos = new Aptos(config);
 
 export const CONTRACT_ADDRESS =
-  "f42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485";
+  "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485";
+
+const privateKey = new Ed25519PrivateKey(import.meta.env.VITE_PRIVATE_KEY);
+const account = Account.fromPrivateKey({ privateKey });
 
 export interface SubmitReviewParams {
   reviewerAddress: string;
@@ -23,8 +32,9 @@ export async function submitReview({
   comment,
 }: SubmitReviewParams) {
   try {
+    // Submit review transaction
     const transaction = await aptos.transaction.build.simple({
-      sender: reviewerAddress,
+      sender: account.accountAddress,
       data: {
         function: `${CONTRACT_ADDRESS}::review2::submit_review`,
         functionArguments: [
@@ -37,12 +47,13 @@ export async function submitReview({
       },
     });
 
-    const response = await aptos.transaction.sign({
-      // @ts-ignore
-      signer: 0x48c883c8db8577c1a67a0d02686495d142d82120b05bc7aad17ccc0bf04319fa,
+    const response = await aptos.signAndSubmitTransaction({
+      signer: account,
       transaction,
     });
-
+    await aptos.waitForTransaction({ transactionHash: response.hash });
+    // Mint tokens for the reviewer
+    await main(reviewerAddress, 2e9);
     return response;
   } catch (error) {
     console.error("Error submitting review:", error);
@@ -54,7 +65,8 @@ export async function getReviewCount(establishmentName: string) {
   try {
     const response = await aptos.view({
       payload: {
-        function: `${CONTRACT_ADDRESS}::review2::get_review_count`,
+        function:
+          "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485::review2::get_review_count",
         typeArguments: [],
         functionArguments: [CONTRACT_ADDRESS, establishmentName],
       },
