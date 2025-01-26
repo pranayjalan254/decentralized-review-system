@@ -1,48 +1,46 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { parseJWTFromURL, initializeAptosKeyless } from "../../lib/auth";
+import { initializeAptosKeyless } from "../../lib/auth";
 import { getLocalKeylessAccount } from "../../lib/keyless";
+import axios from "axios";
 import { Loader2 } from "lucide-react";
 export default function Callback() {
     const navigate = useNavigate();
-    const [error, setError] = useState(null);
+    const [_error, setError] = useState(null);
     useEffect(() => {
         const handleCallback = async () => {
             try {
-                // Check if we already have a stored account
+                // 1. Extract authorization code from URL query
+                const params = new URLSearchParams(window.location.search);
+                const code = params.get("code");
+                if (!code)
+                    throw new Error("Missing authorization code");
+                // 2. Exchange code for JWT via serverless function
+                const response = await axios.post("/api/auth/token", { code });
+                const { id_token } = response.data.id_token;
+                // 3. Existing Aptos initialization logic
                 const existingAccount = getLocalKeylessAccount();
                 if (existingAccount) {
-                    console.log("Using existing account:", existingAccount.accountAddress.toString());
+                    console.log("Using existing account");
                     navigate("/dashboard");
                     return;
                 }
-                const jwt = parseJWTFromURL(window.location.href);
-                if (!jwt) {
-                    console.error("Failed to parse JWT from URL:", window.location.href);
-                    throw new Error("Authentication failed - No token received");
-                }
                 console.log("Initializing Aptos keyless account...");
-                const { keylessAccount, userInfo } = await initializeAptosKeyless(jwt);
-                console.log("Account created:", keylessAccount.accountAddress.toString());
+                const { keylessAccount, userInfo } = await initializeAptosKeyless(id_token);
+                // 4. Store session data
                 localStorage.setItem("userInfo", JSON.stringify(userInfo));
                 localStorage.setItem("accountAddress", keylessAccount.accountAddress.toString());
                 localStorage.setItem("isAuthenticated", "true");
                 navigate("/dashboard");
             }
             catch (err) {
-                console.error("Full authentication error:", err);
-                const errorMessage = err instanceof Error
-                    ? `Authentication failed: ${err.message}`
-                    : "Authentication failed - Please try again";
-                setError(errorMessage);
+                console.error("Authentication error:", err);
+                setError(err instanceof Error ? err.message : "Authentication failed");
                 setTimeout(() => navigate("/"), 5000);
             }
         };
         handleCallback();
     }, [navigate]);
-    if (error) {
-        return (_jsx("div", { className: "min-h-screen flex items-center justify-center", children: _jsx("div", { className: "text-red-400", children: error }) }));
-    }
     return (_jsx("div", { className: "min-h-screen flex items-center justify-center", children: _jsx(Loader2, { className: "w-8 h-8 animate-spin text-purple-500" }) }));
 }

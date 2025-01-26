@@ -13,8 +13,8 @@ export default function Hero() {
         const loginUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
         const params = new URLSearchParams({
             client_id: clientId,
-            redirect_uri: "http://localhost:5174/callback",
-            response_type: "id_token",
+            redirect_uri: "https://true-score.vercel.app/callback",
+            response_type: "code",
             scope: "openid email profile",
             nonce: ekp.nonce,
             prompt: "consent",
