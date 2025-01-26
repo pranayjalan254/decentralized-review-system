@@ -38,7 +38,7 @@ export const WelcomeHeader = ({
             <div className="inline-flex items-center gap-2 sm:gap-3 bg-white/5 rounded-lg px-2 sm:px-3 py-1.5 border border-white/5">
               <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" />
               <span className="font-mono text-xs sm:text-sm text-gray-300">
-                {accountAddress.slice(0, 6)}...{accountAddress.slice(-4)}
+                {accountAddress}
               </span>
               <button
                 onClick={copyAddress}

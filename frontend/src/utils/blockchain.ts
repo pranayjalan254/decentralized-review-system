@@ -5,6 +5,7 @@ import {
   Ed25519PrivateKey,
   Account,
 } from "@aptos-labs/ts-sdk";
+import { main } from "./mint";
 
 const config = new AptosConfig({ network: Network.TESTNET });
 export const aptos = new Aptos(config);
@@ -31,11 +32,11 @@ export async function submitReview({
   comment,
 }: SubmitReviewParams) {
   try {
+    // Submit review transaction
     const transaction = await aptos.transaction.build.simple({
       sender: account.accountAddress,
       data: {
-        function:
-          "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485::review2::submit_review",
+        function: `${CONTRACT_ADDRESS}::review2::submit_review`,
         functionArguments: [
           reviewerAddress,
           establishmentName,
@@ -45,13 +46,14 @@ export async function submitReview({
         ],
       },
     });
-    console.log("Review transaction built:", transaction);
 
-    const response = aptos.signAndSubmitTransaction({
+    const response = await aptos.signAndSubmitTransaction({
       signer: account,
       transaction,
     });
-    console.log("Review submitted:", response);
+    await aptos.waitForTransaction({ transactionHash: response.hash });
+    // Mint tokens for the reviewer
+    await main(reviewerAddress, 2e9);
     return response;
   } catch (error) {
     console.error("Error submitting review:", error);

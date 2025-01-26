@@ -69,7 +69,7 @@ export const PlaceModal = ({
         rating,
         comment,
       });
-      toast.success("Review submitted successfully!");
+      toast.success("Review submitted successfully! You earned 500 tokens!");
       setNewReview({ rating: 0, content: "" });
       setIsWritingReview(false);
 
