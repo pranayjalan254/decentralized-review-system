@@ -1,24 +1,46 @@
-import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
+import {
+  Aptos,
+  AptosConfig,
+  Network,
+} from "@aptos-labs/ts-sdk";
 
+const moduleaddress =
+  "0x82e8de6554ba7ed96be0529a866bbb68f66404b465bda125a5cb6a4d10737c3e";
+const modulecode = "fungible_asset";
 const config = new AptosConfig({
   network: Network.DEVNET,
   fullnode: "https://fullnode.devnet.aptoslabs.com/v1",
 });
+const aptos = new Aptos(config);
 
-export const balance = async (address: string) => {
-  const aptos = new Aptos(config);
 
-  const coinType = "0x1::fungible_asset::FungibleStore";
-  const [balanceStr] = await aptos.view<[string]>({
-    payload: {
-      function: "0x1::primary_fungible_store::balance",
-      typeArguments: [coinType],
-      functionArguments: [address],
-    },
-  });
-  let balance = parseInt(balanceStr, 8);
-  console.log(balance);
-  return balance;
+export async function getBalance(address: string) {
+  try {
+    const response = await aptos.view({
+      payload: {
+        function:
+          `${moduleaddress}::${modulecode}::get_balance`,
+        typeArguments: [],
+        functionArguments: [address],
+      },
+    });
+
+    return Number(response[0]);
+  } catch (error) {
+    console.error("Error getting review count:", error);
+    throw error;
+  }
+}
+
+export const balance = async (Address: string) => {
+  try {
+    // Initialize Aptos client
+
+    const txHash = await getBalance(Address);
+console.log(txHash);
+
+  } catch (error: any) {
+    console.error("Minting failed:", error.message || error);
+  }
 };
 
-balance("0x82e8de6554ba7ed96be0529a866bbb68f66404b465bda125a5cb6a4d10737c3e");
