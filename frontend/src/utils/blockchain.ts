@@ -5,16 +5,14 @@ import {
   Ed25519PrivateKey,
   Account,
 } from "@aptos-labs/ts-sdk";
+
 const config = new AptosConfig({ network: Network.TESTNET });
 export const aptos = new Aptos(config);
 
 export const CONTRACT_ADDRESS =
   "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485";
 
-// @ts-ignore
-const privateKey = new Ed25519PrivateKey(
-  "0x48c883c8db8577c1a67a0d02686495d142d82120b05bc7aad17ccc0bf04319fa"
-);
+const privateKey = new Ed25519PrivateKey(import.meta.env.VITE_PRIVATE_KEY);
 const account = Account.fromPrivateKey({ privateKey });
 
 export interface SubmitReviewParams {

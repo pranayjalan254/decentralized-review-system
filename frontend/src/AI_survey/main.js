@@ -1,20 +1,19 @@
 import { google } from "googleapis";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv/config";
+import dotenv from "dotenv";
 import http from "http";
 import url from "url";
 import readline from "readline";
 
-dotenv.config({ debug: true });
-const googleApiKey = process.env.GOOGLE_API_KEY;
+dotenv.config();
 
 async function authenticateGoogle() {
   const SCOPES = ["https://www.googleapis.com/auth/forms.body"];
 
   try {
     const oAuth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
+      import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
       "http://localhost:8080/"
     );
 
@@ -60,7 +59,7 @@ export async function generateSurveyQuestions(
   totalQuestions,
   additionalDetails
 ) {
-  const genAI = new GoogleGenerativeAI(googleApiKey);
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_API_KEY);
   const prompt = `
     "You are an expert survey designer with deep knowledge of psychology, user engagement, and data collection best practices. Your task is to create an effective Google Forms survey that maximizes respondent attention, minimizes survey completion time, and ensures the collection of all necessary data for the specified purpose.
 

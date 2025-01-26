@@ -56,7 +56,6 @@ const myDummySurveys = [
   },
 ];
 
-// Add this interface near the top of the file
 interface Question {
   question: string;
   type: string;

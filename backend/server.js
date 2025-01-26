@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import {
   generateSurveyQuestions,
   createGoogleForm,
-} from "../AI_survey/main.js";
+} from "../frontend/src/AI_survey/main.js";
 
 dotenv.config();
 
