@@ -1,20 +1,20 @@
 import { Copy, CheckCircle, Wallet, Coins } from "lucide-react";
 import { useState } from "react";
+import { useTokenBalance } from "../../contexts/TokenContext";
 
 interface WelcomeHeaderProps {
   userName: string;
   accountAddress: string;
   userImage: string;
-  tokens: number;
 }
 
 export const WelcomeHeader = ({
   userName,
   accountAddress,
   userImage,
-  tokens,
 }: WelcomeHeaderProps) => {
   const [copied, setCopied] = useState(false);
+  const { balance } = useTokenBalance();
 
   const copyAddress = () => {
     navigator.clipboard.writeText(accountAddress);
@@ -38,7 +38,7 @@ export const WelcomeHeader = ({
             <div className="inline-flex items-center gap-2 sm:gap-3 bg-white/5 rounded-lg px-2 sm:px-3 py-1.5 border border-white/5">
               <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" />
               <span className="font-mono text-xs sm:text-sm text-gray-300">
-                {accountAddress}
+                {accountAddress.slice(0, 6)}...{accountAddress.slice(-4)}
               </span>
               <button
                 onClick={copyAddress}
@@ -61,7 +61,7 @@ export const WelcomeHeader = ({
           </div>
           <div className="bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-lg px-3 py-1 sm:px-4 sm:py-2 border border-purple-500/20">
             <span className="text-xl md:text-2xl font-bold text-white">
-              {tokens}
+              {balance}
             </span>
           </div>
         </div>

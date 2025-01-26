@@ -7,6 +7,7 @@ import {
   Loader2,
   Coffee,
 } from "lucide-react";
+import { useTokenBalance } from "../../../contexts/TokenContext";
 import PlaceModal from "./PlaceModal";
 
 interface PlaceResult {
@@ -24,6 +25,7 @@ interface CachedData {
 const CACHE_DURATION = 5 * 60 * 1000;
 
 export default function Review() {
+  const { balance, setBalance } = useTokenBalance();
   const [selectedCategory, setSelectedCategory] = useState("restaurants");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<PlaceResult[]>([]);
@@ -226,6 +228,11 @@ export default function Review() {
     return distance.toFixed(1);
   };
 
+  const handleReviewSubmit = () => {
+    // 20 tokens added to balance
+    setBalance(balance + 20);
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="bg-black/20 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/10">
@@ -325,6 +332,7 @@ export default function Review() {
           setIsModalOpen(false);
           setSelectedPlace(null);
         }}
+        onReviewSubmit={handleReviewSubmit}
         // @ts-ignore
         userLocation={userLocation}
       />

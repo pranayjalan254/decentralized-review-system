@@ -78,3 +78,46 @@ export async function getReviewCount(establishmentName: string) {
     throw error;
   }
 }
+
+export async function getAverageRating(
+  establishmentName: string
+): Promise<number> {
+  try {
+    const result = await aptos.view({
+      payload: {
+        function:
+          "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485::review2::get_average_rating",
+        typeArguments: [],
+        functionArguments: [CONTRACT_ADDRESS, establishmentName],
+      },
+    });
+    return Number(result[0]);
+  } catch (error) {
+    console.error("Error getting average rating:", error);
+    return 0;
+  }
+}
+
+export async function getAllReviews(establishmentName: string) {
+  try {
+    const result = await aptos.view({
+      payload: {
+        function:
+          "0xf42b36821c33c1fe60d1cb08a7e386cff3b5d5332b24824e676648baa554e485::review2::get_all_reviews",
+        typeArguments: [],
+        functionArguments: [CONTRACT_ADDRESS, establishmentName],
+      },
+    });
+
+    return result?.map((review: any) => ({
+      reviewer: review.reviewer,
+      rating: Number(review.rating),
+      comment: review.comment,
+      timestamp: Number(review.timestamp),
+      establishmentName: review.establishment_name,
+    }));
+  } catch (error) {
+    console.error("Error getting reviews:", error);
+    return [];
+  }
+}

@@ -1,9 +1,13 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Star, MapPin, Flag, ThumbsUp, Loader2 } from "lucide-react";
+import { X, Star, MapPin, Flag, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Review } from "../../../types/place";
-import { submitReview, getReviewCount } from "../../../utils/blockchain";
+import {
+  submitReview,
+  getReviewCount,
+  getAllReviews,
+  getAverageRating,
+} from "../../../utils/blockchain";
 import { getLocalKeylessAccount } from "../../../lib/keyless";
 
 const account = getLocalKeylessAccount();
@@ -13,34 +17,48 @@ interface PlaceModalProps {
   place: any;
   isOpen: boolean;
   onClose: () => void;
-  userLocation?: { lat: number; lng: number };
+  onReviewSubmit: () => void;
+  userLocation: { lat: number; lng: number } | null;
 }
 
-export const PlaceModal = ({
+export default function PlaceModal({
   place,
   isOpen,
   onClose,
+  onReviewSubmit,
   userLocation,
-}: PlaceModalProps) => {
+}: PlaceModalProps) {
   const [isWritingReview, setIsWritingReview] = useState(false);
   const [newReview, setNewReview] = useState({ rating: 0, content: "" });
   const [reviewCount, setReviewCount] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
 
   useEffect(() => {
-    const fetchReviewCount = async () => {
+    const fetchReviewsData = async () => {
       if (place?.displayName) {
+        setIsLoadingReviews(true);
         try {
-          const count = await getReviewCount(place.displayName);
+          const [reviews, avgRating, count] = await Promise.all([
+            getAllReviews(place.displayName),
+            getAverageRating(place.displayName),
+            getReviewCount(place.displayName),
+          ]);
+          setReviews(reviews);
+          setAverageRating(avgRating);
           setReviewCount(count);
         } catch (error) {
-          console.error("Error fetching review count:", error);
+          console.error("Error fetching reviews data:", error);
+        } finally {
+          setIsLoadingReviews(false);
         }
       }
     };
 
     if (isOpen) {
-      fetchReviewCount();
+      fetchReviewsData();
     }
   }, [isOpen, place?.displayName]);
 
@@ -69,13 +87,19 @@ export const PlaceModal = ({
         rating,
         comment,
       });
-      toast.success("Review submitted successfully! You earned 500 tokens!");
+      toast.success("Review submitted successfully! You earned 20 tokens!");
       setNewReview({ rating: 0, content: "" });
       setIsWritingReview(false);
 
       // Refresh review count
       const newCount = await getReviewCount(establishmentName);
       setReviewCount(newCount);
+
+      // Call the token minting callback
+      onReviewSubmit();
+
+      // Close the modal or show success message
+      onClose();
     } catch (error) {
       console.error("Error submitting review:", error);
       toast.error("Failed to submit review. Please try again.");
@@ -83,17 +107,6 @@ export const PlaceModal = ({
       setIsSubmitting(false);
     }
   };
-
-  const mockReviews: Review[] = [
-    {
-      id: "1",
-      author: "Jane Doe",
-      rating: 4,
-      content: "Great place! Highly recommend.",
-      createdAt: new Date("2024-01-15"),
-      helpful: 12,
-    },
-  ];
 
   if (!place) return null;
 
@@ -280,50 +293,75 @@ export const PlaceModal = ({
               <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-white">Reviews</h3>
-                  <span className="text-sm text-gray-400">
-                    {reviewCount} {reviewCount === 1 ? "review" : "reviews"} on
-                    chain
-                  </span>
+                  <div className="flex items-center gap-4">
+                    {averageRating > 0 && (
+                      <div className="flex items-center gap-1">
+                        <Star
+                          className="w-4 h-4 text-yellow-400"
+                          fill="currentColor"
+                        />
+                        <span className="text-white">
+                          {averageRating.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
+                    <span className="text-sm text-gray-400">
+                      {reviewCount} {reviewCount === 1 ? "review" : "reviews"}{" "}
+                      on chain
+                    </span>
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  {mockReviews.map((review) => (
-                    <div
-                      key={review.id}
-                      className="bg-white/5 rounded-lg p-4 space-y-3"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-white font-medium">
-                              {review.author}
-                            </span>
-                            <div className="flex">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < review.rating
-                                      ? "text-yellow-400"
-                                      : "text-gray-600"
-                                  }`}
-                                  fill="currentColor"
-                                />
-                              ))}
+
+                {isLoadingReviews ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {reviews.length > 0 ? (
+                      reviews.map((review, index) => (
+                        <div
+                          key={index}
+                          className="bg-white/5 rounded-lg p-4 space-y-3"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-white font-medium">
+                                  {review.reviewer.slice(0, 6)}...
+                                  {review.reviewer.slice(-4)}
+                                </span>
+                                <div className="flex">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`w-4 h-4 ${
+                                        i < review.rating
+                                          ? "text-yellow-400"
+                                          : "text-gray-600"
+                                      }`}
+                                      fill="currentColor"
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                              <span className="text-sm text-gray-400">
+                                {new Date(
+                                  review.timestamp / 1000
+                                ).toLocaleDateString()}
+                              </span>
                             </div>
                           </div>
-                          <span className="text-sm text-gray-400">
-                            {new Date(review.createdAt).toLocaleDateString()}
-                          </span>
+                          <p className="text-gray-300">{review.comment}</p>
                         </div>
-                        <button className="flex items-center gap-1 text-gray-400 hover:text-purple-400">
-                          <ThumbsUp className="w-4 h-4" />
-                          <span className="text-sm">{review.helpful}</span>
-                        </button>
-                      </div>
-                      <p className="text-gray-300">{review.content}</p>
-                    </div>
-                  ))}
-                </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 text-center py-4">
+                        No reviews yet
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
@@ -331,6 +369,4 @@ export const PlaceModal = ({
       )}
     </AnimatePresence>
   );
-};
-
-export default PlaceModal;
+}

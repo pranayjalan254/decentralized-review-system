@@ -17,6 +17,7 @@ import {
 import { burn } from "../../../utils/burn";
 import toast from "react-hot-toast";
 import { getLocalKeylessAccount } from "../../../lib/keyless";
+import { useTokenBalance } from "../../../contexts/TokenContext";
 
 const earningActivities = [
   {
@@ -55,7 +56,7 @@ const rewardCategories = [
     rewards: [
       { title: "Domino's Pizza Voucher", tokens: 800, available: true },
       { title: "McDonald's Meal", tokens: 500, available: true },
-      { title: "KFC Bucket", tokens: 700, available: false },
+      { title: "KFC Bucket", tokens: 70, available: true },
       { title: "Subway Sandwich", tokens: 400, available: true },
     ],
   },
@@ -126,7 +127,7 @@ export default function Store() {
   const [selectedCategory, setSelectedCategory] = useState(
     rewardCategories[0].id
   );
-  const [userBalance, setUserBalance] = useState(500);
+  const { balance, setBalance } = useTokenBalance();
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [currentCoupon, setCurrentCoupon] = useState("");
   const [isCopied, setIsCopied] = useState(false);
@@ -146,14 +147,15 @@ export default function Store() {
   }, [redeemedVouchers]);
 
   const handleRedeem = async (reward: { title: string; tokens: number }) => {
-    if (userBalance < reward.tokens) {
+    if (balance < reward.tokens) {
       toast.error("Insufficient balance!");
       return;
     }
     setProcessingRewards((prev) => ({ ...prev, [reward.title]: true }));
     try {
       await burn(accountAddress || "", reward.tokens);
-      setUserBalance((prev) => prev - reward.tokens);
+      // @ts-ignore
+      setBalance((prev) => prev - reward.tokens);
 
       const couponCode = mockCouponCodes[reward.title];
       if (!couponCode) {
@@ -195,7 +197,7 @@ export default function Store() {
         <div className="flex items-center gap-2">
           <Coins className="w-6 h-6 text-yellow-400" />
           <span className="text-xl font-bold text-white">
-            Balance: {userBalance} tokens
+            Balance: {balance} tokens
           </span>
         </div>
       </div>
@@ -281,7 +283,7 @@ export default function Store() {
                   disabled={
                     !reward.available ||
                     processingRewards[reward.title] ||
-                    userBalance < reward.tokens ||
+                    balance < reward.tokens ||
                     redeemedVouchers.includes(reward.title)
                   }
                   className="w-full px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -290,7 +292,7 @@ export default function Store() {
                     <>Processing...</>
                   ) : redeemedVouchers.includes(reward.title) ? (
                     "Already Redeemed"
-                  ) : userBalance < reward.tokens ? (
+                  ) : balance < reward.tokens ? (
                     "Insufficient Balance"
                   ) : reward.available ? (
                     "Redeem Now"

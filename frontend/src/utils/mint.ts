@@ -7,7 +7,7 @@ import {
 } from "@aptos-labs/ts-sdk";
 
 const config = new AptosConfig({
-  network: Network.DEVNET,
+  network: Network.TESTNET,
   fullnode: "https://fullnode.devnet.aptoslabs.com/v1",
 });
 

@@ -74,7 +74,6 @@ const Dashboard = () => {
                 userName={userInfo.name}
                 accountAddress={accountAddress}
                 userImage={userInfo.picture}
-                tokens={450}
               />
               <StatCards stats={mockStats} />
             </>

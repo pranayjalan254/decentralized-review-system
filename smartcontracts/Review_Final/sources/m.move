@@ -1,4 +1,4 @@
-module addr::review3 {
+module addr::review2 {
     use std::string::{String, utf8};
     use aptos_framework::event;
     use aptos_framework::account;
