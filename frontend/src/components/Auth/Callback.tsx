@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { initializeAptosKeyless } from "../../lib/auth";
 import { getLocalKeylessAccount } from "../../lib/keyless";
-import axios from "axios";
 import { Loader2 } from "lucide-react";
 
 export default function Callback() {
@@ -12,17 +11,13 @@ export default function Callback() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // 1. Extract authorization code from URL query
+        // Get ID token from URL query params
         const params = new URLSearchParams(window.location.search);
-        const code = params.get("code");
+        const id_token = params.get("id_token");
 
-        if (!code) throw new Error("Missing authorization code");
+        if (!id_token) throw new Error("Missing ID token");
 
-        // 2. Exchange code for JWT via serverless function
-        const response = await axios.post("/api/auth/token", { code });
-        const { id_token } = response.data.id_token;
-
-        // 3. Existing Aptos initialization logic
+        // Existing Aptos initialization logic
         const existingAccount = getLocalKeylessAccount();
         if (existingAccount) {
           console.log("Using existing account");
@@ -35,7 +30,7 @@ export default function Callback() {
           id_token
         );
 
-        // 4. Store session data
+        // Store session data
         localStorage.setItem("userInfo", JSON.stringify(userInfo));
         localStorage.setItem(
           "accountAddress",
@@ -53,6 +48,7 @@ export default function Callback() {
 
     handleCallback();
   }, [navigate]);
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
