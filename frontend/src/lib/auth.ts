@@ -12,8 +12,7 @@ export interface JWTPayload {
 
 export const parseJWTFromURL = (url: string): string | null => {
   const urlObject = new URL(url);
-  const fragment = urlObject.hash.substring(1);
-  const params = new URLSearchParams(fragment);
+  const params = urlObject.searchParams;
   return params.get("id_token");
 };
 

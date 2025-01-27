@@ -22,6 +22,7 @@ export default function Callback() {
           return;
         }
 
+        // Parse the JWT from the query parameters
         const jwt = parseJWTFromURL(window.location.href);
         if (!jwt) {
           console.error("Failed to parse JWT from URL:", window.location.href);
@@ -36,6 +37,7 @@ export default function Callback() {
           keylessAccount.accountAddress.toString()
         );
 
+        // Store user info and account details in localStorage
         localStorage.setItem("userInfo", JSON.stringify(userInfo));
         localStorage.setItem(
           "accountAddress",
