@@ -99,7 +99,9 @@ export default function Survey() {
 
   const getAuthUrlAndShow = async () => {
     try {
-      const response = await fetch("http://localhost:5000/get-auth-url");
+      const response = await fetch(
+        "https://decentralized-review-system.onrender.com/get-auth-url"
+      );
       const data = await response.json();
       if (data.authUrl) {
         setAuthUrl(data.authUrl);
@@ -113,18 +115,21 @@ export default function Survey() {
   const handleGenerateQuestions = async () => {
     try {
       setGeneratingQuestions(true);
-      const response = await fetch("http://localhost:5000/generate-questions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          surveyTitle,
-          targetAudience,
-          numberOfQuestions,
-          additionalRequirements,
-        }),
-      });
+      const response = await fetch(
+        "https://decentralized-review-system.onrender.com/generate-questions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            surveyTitle,
+            targetAudience,
+            numberOfQuestions,
+            additionalRequirements,
+          }),
+        }
+      );
       const data = await response.json();
       if (data.questions) {
         setQuestions(data.questions);
@@ -147,17 +152,20 @@ export default function Survey() {
 
     try {
       setCreatingForm(true);
-      const response = await fetch("http://localhost:5000/create-survey", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          questions,
-          surveyTitle,
-          authCode,
-        }),
-      });
+      const response = await fetch(
+        "https://decentralized-review-system.onrender.com/create-survey",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            questions,
+            surveyTitle,
+            authCode,
+          }),
+        }
+      );
 
       const data = await response.json();
 
