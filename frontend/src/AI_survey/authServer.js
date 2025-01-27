@@ -9,7 +9,7 @@ app.get("/oauth2callback", (req, res) => {
   if (code) {
     res.send(`
       <script>
-        window.opener.postMessage({ code: '${code}' }, 'http://localhost:5173');
+        window.opener.postMessage({ code: '${code}' }, 'https://true-score.vercel.app');
         window.close();
       </script>
     `);
