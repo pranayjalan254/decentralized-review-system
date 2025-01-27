@@ -14,7 +14,7 @@ export default function Hero() {
         const params = new URLSearchParams({
             client_id: clientId,
             redirect_uri: "https://true-score.vercel.app/callback",
-            response_type: "token",
+            response_type: "id_token",
             scope: "openid email profile",
             nonce: ekp.nonce,
             prompt: "consent",
