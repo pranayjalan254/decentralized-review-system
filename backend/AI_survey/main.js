@@ -9,7 +9,7 @@ dotenv.config();
 const oAuth2Client = new google.auth.OAuth2(
   "635117093146-lvsthljols4k7v7rfrke0h389qiqm2ao.apps.googleusercontent.com",
   "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",
-  "http://localhost:3001/oauth2callback"
+  "https://decentralized-review-system-r7vv.onrender.com/oauth2callback"
 );
 
 export function getAuthUrl() {
