@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import {
   generateSurveyQuestions,
   createGoogleForm,
+  getAuthUrl,
+  authenticateGoogle, // Add this import
 } from "../frontend/src/AI_survey/main.js";
 
 dotenv.config();
@@ -33,14 +35,37 @@ app.post("/generate-questions", async (req, res) => {
   }
 });
 
-app.post("/create-survey", async (req, res) => {
-  const { questions, surveyTitle } = req.body;
+app.get("/get-auth-url", async (_req, res) => {
   try {
-    const formUrl = await createGoogleForm(questions, surveyTitle);
+    const authUrl = getAuthUrl();
+    res.json({ authUrl });
+  } catch (error) {
+    console.error("Error getting auth URL:", error);
+    res.status(500).json({ error: "Failed to get auth URL" });
+  }
+});
+
+app.post("/create-survey", async (req, res) => {
+  const { questions, surveyTitle, authCode } = req.body;
+  try {
+    let auth;
+    try {
+      auth = await authenticateGoogle(authCode);
+    } catch (authError) {
+      return res.status(401).json({
+        error: "Authentication failed",
+        details: "Please sign in again",
+      });
+    }
+
+    const formUrl = await createGoogleForm(questions, surveyTitle, auth);
     res.json({ formUrl });
   } catch (error) {
-    console.error("Error creating survey:", error);
-    res.status(500).json({ error: "Failed to create survey" });
+    console.error("Error details:", error.message);
+    res.status(error.status || 500).json({
+      error: "Failed to create survey",
+      details: error.message,
+    });
   }
 });
 

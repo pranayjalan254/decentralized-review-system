@@ -1,55 +1,53 @@
 import { google } from "googleapis";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
-import http from "http";
-import url from "url";
 import readline from "readline";
+import { saveToken, loadToken } from "./tokenStore.js";
 
 dotenv.config();
 
-async function authenticateGoogle() {
+const oAuth2Client = new google.auth.OAuth2(
+  "635117093146-lvsthljols4k7v7rfrke0h389qiqm2ao.apps.googleusercontent.com",
+  "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",
+  "http://localhost:3001/oauth2callback"
+);
+
+export function getAuthUrl() {
   const SCOPES = ["https://www.googleapis.com/auth/forms.body"];
+  return oAuth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: SCOPES,
+  });
+}
 
+// Change to export the function
+export async function authenticateGoogle(code) {
   try {
-    const oAuth2Client = new google.auth.OAuth2(
-      "635117093146-1m7ueue994nes8ob8gi1687e4tbft6av.apps.googleusercontent.com",
-      "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",
-      "http://localhost:8080/"
-    );
+    // Try to load existing token
+    const savedToken = loadToken();
+    if (savedToken) {
+      oAuth2Client.setCredentials(savedToken);
+      // Check if token needs refresh
+      if (savedToken.expiry_date && savedToken.expiry_date < Date.now()) {
+        const { credentials } = await oAuth2Client.refreshToken(
+          savedToken.refresh_token
+        );
+        saveToken(credentials);
+        oAuth2Client.setCredentials(credentials);
+      }
+    } else if (code) {
+      // Get new token if no saved token exists
+      const { tokens } = await oAuth2Client.getToken(code);
+      saveToken(tokens);
+      oAuth2Client.setCredentials(tokens);
+    } else {
+      throw new Error("No authentication code or saved token available");
+    }
 
-    const authUrl = oAuth2Client.generateAuthUrl({
-      access_type: "offline",
-      scope: SCOPES,
-    });
-
-    console.log("Authorize this app by visiting this url:", authUrl);
-
-    const getAuthCode = () => {
-      return new Promise((resolve, reject) => {
-        const server = http.createServer(async (req, res) => {
-          try {
-            const parsedUrl = url.parse(req.url, true);
-            if (parsedUrl.pathname === "/") {
-              const code = parsedUrl.query.code;
-              res.end("Authentication successful! You can close this window.");
-              server.close();
-              resolve(code);
-            }
-          } catch (err) {
-            reject(err);
-          }
-        });
-        server.listen(8080);
-      });
-    };
-
-    const code = await getAuthCode();
-    const { tokens } = await oAuth2Client.getToken(code);
-    oAuth2Client.setCredentials(tokens);
     return oAuth2Client;
   } catch (error) {
-    console.error("Error during authentication:", error);
-    throw error;
+    console.error("Authentication error:", error);
+    throw new Error("Failed to authenticate with Google");
   }
 }
 
@@ -182,9 +180,9 @@ export function parseQuestions(aiResponse) {
   return questions;
 }
 
-export async function createGoogleForm(questions, formTitle) {
+// Modify createGoogleForm to accept auth parameter
+export async function createGoogleForm(questions, formTitle, auth) {
   try {
-    const auth = await authenticateGoogle();
     const forms = google.forms({ version: "v1", auth });
 
     const form = await forms.forms.create({
@@ -251,7 +249,14 @@ export async function createGoogleForm(questions, formTitle) {
 
     return `https://docs.google.com/forms/d/${formId}/viewform`;
   } catch (error) {
-    console.error("Error creating form:", error);
+    if (error.response?.status === 401) {
+      try {
+        const newAuth = await authenticateGoogle();
+        const forms = google.forms({ version: "v1", auth: newAuth });
+      } catch (refreshError) {
+        throw new Error("Authentication expired. Please sign in again.");
+      }
+    }
     throw error;
   }
 }

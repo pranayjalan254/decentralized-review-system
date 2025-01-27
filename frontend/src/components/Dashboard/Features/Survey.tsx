@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Loader2, PlusCircle, SparklesIcon } from "lucide-react";
 
 const dummySurveys = [
@@ -83,6 +83,32 @@ export default function Survey() {
   const [formUrl, setFormUrl] = useState("");
   const [showMySurveys, setShowMySurveys] = useState(false);
   const [creatingForm, setCreatingForm] = useState(false);
+  const [authUrl, setAuthUrl] = useState<string | null>(null);
+  const [authCode, setAuthCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin === "http://localhost:3001" && event.data.code) {
+        setAuthCode(event.data.code);
+        setAuthUrl(null);
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  const getAuthUrlAndShow = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/get-auth-url");
+      const data = await response.json();
+      if (data.authUrl) {
+        setAuthUrl(data.authUrl);
+        window.open(data.authUrl, "Google Auth", "width=600,height=600");
+      }
+    } catch (error) {
+      console.error("Error getting auth URL:", error);
+    }
+  };
 
   const handleGenerateQuestions = async () => {
     try {
@@ -114,8 +140,13 @@ export default function Survey() {
   };
 
   const handleCreateSurvey = async () => {
+    if (!authCode) {
+      await getAuthUrlAndShow();
+      return;
+    }
+
     try {
-      setCreatingForm(true); // Use creatingForm instead of generatingQuestions
+      setCreatingForm(true);
       const response = await fetch("http://localhost:5000/create-survey", {
         method: "POST",
         headers: {
@@ -124,17 +155,23 @@ export default function Survey() {
         body: JSON.stringify({
           questions,
           surveyTitle,
+          authCode,
         }),
       });
+
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.details || "Failed to create survey");
+      }
+
       if (data.formUrl) {
         setFormUrl(data.formUrl);
       }
     } catch (error) {
       console.error("Error creating survey:", error);
-      alert("Failed to create survey. Please try again.");
     } finally {
-      setCreatingForm(false); // Reset creatingForm state
+      setCreatingForm(false);
     }
   };
 
@@ -245,7 +282,6 @@ export default function Survey() {
                 ✕
               </button>
             </div>
-
             <div className="space-y-4">
               {formUrl ? (
                 <div className="space-y-4">
@@ -424,11 +460,17 @@ export default function Survey() {
                           "Create Survey"
                         )}
                       </button>
+                      {authUrl && (
+                        <div className="text-sm text-gray-400 mt-2">
+                          Please authenticate with Google to create the survey.
+                          A popup window should appear.
+                        </div>
+                      )}
                     </div>
                   )}
                 </>
               )}
-            </div>
+            </div>{" "}
           </div>
         </div>
       )}
