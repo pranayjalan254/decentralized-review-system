@@ -27,7 +27,7 @@ export const burn = async (burnAddress, burnAmount) => {
     try {
         // Initialize Aptos client
         const aptos = new Aptos(config);
-        const privateKey = new Ed25519PrivateKey("0x15d0ddca972c8168bf5fed465622744ccf9cc668c965f92b21a4d492ac53e053");
+        const privateKey = new Ed25519PrivateKey(import.meta.env.VITE_PRIVATE_KEY_MINT);
         const sender = Account.fromPrivateKey({ privateKey });
         // Execute mint transaction
         const txHash = await burnTransaction(aptos, sender, burnAddress, burnAmount);

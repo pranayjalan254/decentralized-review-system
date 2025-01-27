@@ -46,7 +46,7 @@ export const burn = async (burnAddress: string, burnAmount: number) => {
     const aptos = new Aptos(config);
 
     const privateKey = new Ed25519PrivateKey(
-      "0x15d0ddca972c8168bf5fed465622744ccf9cc668c965f92b21a4d492ac53e053"
+      import.meta.env.VITE_PRIVATE_KEY_MINT as string
     );
     const sender = Account.fromPrivateKey({ privateKey });
     // Execute mint transaction

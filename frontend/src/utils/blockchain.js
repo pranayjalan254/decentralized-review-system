@@ -80,7 +80,7 @@ export async function getAllReviews(establishmentName) {
             return [];
         }
         return result[0].map((review) => ({
-            id: `${review.reviewer}-${review.timestamp}-${review.establishment_name}`, // Add unique ID
+            id: `${review.reviewer}-${review.timestamp}-${review.establishment_name}`,
             reviewer: review.reviewer,
             establishmentName: review.establishment_name,
             rating: Number(review.rating),
@@ -90,6 +90,6 @@ export async function getAllReviews(establishmentName) {
     }
     catch (error) {
         console.error("Error getting reviews:", error);
-        throw error; // Let the caller handle the error
+        throw error;
     }
 }
