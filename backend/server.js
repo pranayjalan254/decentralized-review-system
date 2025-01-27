@@ -6,7 +6,7 @@ import {
   createGoogleForm,
   getAuthUrl,
   authenticateGoogle,
-} from "../frontend/src/AI_survey/main.js";
+} from "./AI_survey/main.js";
 
 dotenv.config();
 
