@@ -11,4 +11,10 @@ export default defineConfig({
         exclude: ["lucide-react"],
     },
     envPrefix: "VITE_",
+    server: {
+        hmr: true, // Ensure HMR is enabled
+        watch: {
+            usePolling: true, // Useful in Docker, WSL, or networked file systems
+        },
+    },
 });

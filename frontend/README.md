@@ -1,50 +1,32 @@
-# React + TypeScript + Vite
+TrueScore: Decentralized Review and survey platform where transparent and immutable reviews are stored on the blockchain with token rewards for users based on their authenticity and likes.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Vision**: To revolutionize digital trust through a blockchain-powered ecosystem where authentic user contributions are transparently rewarded, and community-driven insights shape real-world decisions.
 
-Currently, two official plugins are available:
+## 🌟 Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### **Decentralized Review System**
 
-## Expanding the ESLint configuration
+- 📝 **Immutable Reviews**: Store restaurant/hotel/gym reviews permanently on-chain (Aptos blockchain)
+- 💰 **Token Rewards**: Earn `TRUST` tokens for posting reviews, with bonuses for verified authenticity and likes
+- 🛡️ **Anti-Spam**: Coming soon - AI-powered spam/fake review detection and zero knowledge proof to verify visit to the place.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### **AI-Powered Survey Engine**
 
-- Configure the top-level `parserOptions` property like this:
+- 🤖 **Instant Survey Builder**: AI generates customized surveys via natural language prompts
+- 🪙 **Survey Rewards**: Earn tokens for completing surveys, with bonus payouts for high-quality responses
+- 📊 **Data Analytics**: Coming soon - Get in-depth data analysis and insights from your survey results
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### **Possible Token Utility (TRUST)**
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+- 🎁 **Redeem Rewards**: Get discounts at partner restaurants, hotels, and retail stores
+- 🗳️ **Governance**: Vote on platform upgrades and partner integrations
+- 🔄 **Data Marketplace**: Future feature - Sell anonymized survey datasets
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## 🛠️ Tech Stack
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+| Component         | Technology Used    |
+| ----------------- | ------------------ |
+| Blockchain        | Aptos Move VM      |
+| Smart Contracts   | Move Language      |
+| AI Survey Builder | Gemini 1.5 pro API |
+| Frontend          | React + Typescript |

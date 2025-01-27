@@ -12,8 +12,8 @@ async function authenticateGoogle() {
 
   try {
     const oAuth2Client = new google.auth.OAuth2(
-      import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
+      "635117093146-1m7ueue994nes8ob8gi1687e4tbft6av.apps.googleusercontent.com",
+      "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",
       "http://localhost:8080/"
     );
 
@@ -59,7 +59,9 @@ export async function generateSurveyQuestions(
   totalQuestions,
   additionalDetails
 ) {
-  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_API_KEY);
+  const genAI = new GoogleGenerativeAI(
+    "AIzaSyAh53cfyAhoWNzvZP-1FmdD6gT-gVpwyHQ"
+  );
   const prompt = `
     "You are an expert survey designer with deep knowledge of psychology, user engagement, and data collection best practices. Your task is to create an effective Google Forms survey that maximizes respondent attention, minimizes survey completion time, and ensures the collection of all necessary data for the specified purpose.
 
