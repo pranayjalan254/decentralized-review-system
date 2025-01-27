@@ -18,7 +18,7 @@ export default function Hero() {
             scope: "openid email profile",
             nonce: ekp.nonce,
             prompt: "consent",
-            access_type: "offline",
+            // access_type: "offline",
         });
         window.location.href = `${loginUrl.toString()}?${params.toString()}`;
     };
