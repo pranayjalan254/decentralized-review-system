@@ -14,11 +14,11 @@ export default function Hero() {
         const params = new URLSearchParams({
             client_id: clientId,
             redirect_uri: "https://true-score.vercel.app/callback",
-            response_type: "token",
+            response_type: "token id_token",
             scope: "openid email profile",
             // nonce: ekp.nonce,
             prompt: "consent",
-            access_type: "offline",
+            // access_type: "offline",
         });
         window.location.href = `${loginUrl.toString()}?${params.toString()}`;
     };
