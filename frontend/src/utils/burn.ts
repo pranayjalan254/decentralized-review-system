@@ -42,14 +42,12 @@ export const burnTransaction = async (
 
 export const burn = async (burnAddress: string, burnAmount: number) => {
   try {
-    // Initialize Aptos client
     const aptos = new Aptos(config);
 
     const privateKey = new Ed25519PrivateKey(
       import.meta.env.VITE_PRIVATE_KEY_MINT as string
     );
     const sender = Account.fromPrivateKey({ privateKey });
-    // Execute mint transaction
     const txHash = await burnTransaction(
       aptos,
       sender,

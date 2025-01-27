@@ -62,7 +62,6 @@ export default function PlaceModal({
     }
   }, [isOpen, place?.displayName]);
 
-  // Add cleanup on modal close
   useEffect(() => {
     if (!isOpen) {
       setReviews([]);
@@ -101,11 +100,7 @@ export default function PlaceModal({
       // Refresh review count
       const newCount = await getReviewCount(establishmentName);
       setReviewCount(newCount);
-
-      // Call the token minting callback
       onReviewSubmit();
-
-      // Close the modal or show success message
       onClose();
     } catch (error) {
       console.error("Error submitting review:", error);

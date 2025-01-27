@@ -20,14 +20,11 @@ export function getAuthUrl() {
   });
 }
 
-// Change to export the function
 export async function authenticateGoogle(code) {
   try {
-    // Try to load existing token
     const savedToken = loadToken();
     if (savedToken) {
       oAuth2Client.setCredentials(savedToken);
-      // Check if token needs refresh
       if (savedToken.expiry_date && savedToken.expiry_date < Date.now()) {
         const { credentials } = await oAuth2Client.refreshToken(
           savedToken.refresh_token
@@ -36,7 +33,6 @@ export async function authenticateGoogle(code) {
         oAuth2Client.setCredentials(credentials);
       }
     } else if (code) {
-      // Get new token if no saved token exists
       const { tokens } = await oAuth2Client.getToken(code);
       saveToken(tokens);
       oAuth2Client.setCredentials(tokens);
@@ -58,7 +54,7 @@ export async function generateSurveyQuestions(
   additionalDetails
 ) {
   const genAI = new GoogleGenerativeAI(
-    "AIzaSyAh53cfyAhoWNzvZP-1FmdD6gT-gVpwyHQ"
+    "AIzaSyC_1--2UVdcNkZQZDk8DgIvUtre7DuT-ug"
   );
   const prompt = `
     "You are an expert survey designer with deep knowledge of psychology, user engagement, and data collection best practices. Your task is to create an effective Google Forms survey that maximizes respondent attention, minimizes survey completion time, and ensures the collection of all necessary data for the specified purpose.
@@ -131,7 +127,7 @@ Provide an optional section for additional comments/feedback.
     `;
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent(prompt);
     return parseQuestions(await result.response.text());
   } catch (error) {
@@ -180,7 +176,6 @@ export function parseQuestions(aiResponse) {
   return questions;
 }
 
-// Modify createGoogleForm to accept auth parameter
 export async function createGoogleForm(questions, formTitle, auth) {
   try {
     const forms = google.forms({ version: "v1", auth });

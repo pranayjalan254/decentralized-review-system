@@ -257,7 +257,6 @@ export default function Review() {
 
   const handleReviewSubmit = async () => {
     if (accountAddress) {
-      // Fetch updated balance after review submission
       const newBalance = await getBalance(accountAddress);
       setBalance(newBalance);
     }

@@ -39,7 +39,6 @@ const mintTransaction = async (
 
 export const main = async (recipientAddress: string, mintAmount: number) => {
   try {
-    // Initialize Aptos client
     const aptos = new Aptos(config);
     const privateKey = new Ed25519PrivateKey(
       import.meta.env.VITE_PRIVATE_KEY_MINT as string

@@ -135,7 +135,6 @@ export default function Store() {
             }
         };
         fetchBalance();
-        // Set up polling every 30 seconds
         const intervalId = setInterval(fetchBalance, 30000);
         return () => clearInterval(intervalId);
     }, [accountAddress]);
@@ -150,7 +149,6 @@ export default function Store() {
         setProcessingRewards((prev) => ({ ...prev, [reward.title]: true }));
         try {
             await burn(accountAddress || "", reward.tokens);
-            // After burning, fetch the new balance
             if (accountAddress) {
                 const newBalance = await getBalance(accountAddress);
                 setBalance(newBalance);

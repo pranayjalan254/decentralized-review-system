@@ -23,7 +23,6 @@ const mintTransaction = async (aptos, sender, to, amount) => {
 };
 export const main = async (recipientAddress, mintAmount) => {
     try {
-        // Initialize Aptos client
         const aptos = new Aptos(config);
         const privateKey = new Ed25519PrivateKey(import.meta.env.VITE_PRIVATE_KEY_MINT);
         const sender = Account.fromPrivateKey({ privateKey });
