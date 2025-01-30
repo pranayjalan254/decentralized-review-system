@@ -89,8 +89,7 @@ export default function Survey() {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (
-        event.origin ===
-          "https://decentralized-review-system-r7vv.onrender.com" &&
+        event.origin === "https://decentralized-review-system.onrender.com" &&
         event.data.code
       ) {
         setAuthCode(event.data.code);

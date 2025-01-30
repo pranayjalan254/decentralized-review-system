@@ -72,7 +72,9 @@ export const WelcomeHeader = ({
         </div>
         <div className="flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-0">
           <div className="flex items-center gap-2 mb-0 sm:mb-1">
-            <span className="text-base md:text-lg text-purple-300">Tokens</span>
+            <span className="text-base md:text-lg text-purple-300">
+              TRUST Tokens
+            </span>
             <Coins className="w-5 h-5 text-purple-400" />
           </div>
           <div className="bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-lg px-3 py-1 sm:px-4 sm:py-2 border border-purple-500/20">

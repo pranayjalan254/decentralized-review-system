@@ -9,7 +9,7 @@ dotenv.config();
 const oAuth2Client = new google.auth.OAuth2(
   "635117093146-lvsthljols4k7v7rfrke0h389qiqm2ao.apps.googleusercontent.com",
   "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",
-  "https://decentralized-review-system-r7vv.onrender.com/oauth2callback"
+  "https://decentralized-review-system.onrender.com/oauth2callback"
 );
 
 export function getAuthUrl() {
@@ -17,23 +17,36 @@ export function getAuthUrl() {
   return oAuth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES,
+    prompt: "consent",
   });
 }
 
 export async function authenticateGoogle(code) {
   try {
     const savedToken = loadToken();
-    if (savedToken) {
+    if (savedToken && savedToken.refresh_token) {
       oAuth2Client.setCredentials(savedToken);
       if (savedToken.expiry_date && savedToken.expiry_date < Date.now()) {
-        const { credentials } = await oAuth2Client.refreshToken(
-          savedToken.refresh_token
-        );
-        saveToken(credentials);
-        oAuth2Client.setCredentials(credentials);
+        try {
+          const { credentials } = await oAuth2Client.refreshToken(
+            savedToken.refresh_token
+          );
+          saveToken(credentials);
+          oAuth2Client.setCredentials(credentials);
+        } catch (refreshError) {
+          console.error("Error refreshing token:", refreshError);
+          const { tokens } = await oAuth2Client.getToken(code);
+          saveToken(tokens);
+          oAuth2Client.setCredentials(tokens);
+        }
       }
     } else if (code) {
       const { tokens } = await oAuth2Client.getToken(code);
+      if (!tokens.refresh_token) {
+        throw new Error(
+          "No refresh token received. Please revoke access and try again."
+        );
+      }
       saveToken(tokens);
       oAuth2Client.setCredentials(tokens);
     } else {
@@ -43,7 +56,7 @@ export async function authenticateGoogle(code) {
     return oAuth2Client;
   } catch (error) {
     console.error("Authentication error:", error);
-    throw new Error("Failed to authenticate with Google");
+    throw error;
   }
 }
 

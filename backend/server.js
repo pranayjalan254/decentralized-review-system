@@ -52,20 +52,36 @@ app.post("/create-survey", async (req, res) => {
     try {
       auth = await authenticateGoogle(authCode);
     } catch (authError) {
+      console.error("Authentication error details:", authError);
       return res.status(401).json({
         error: "Authentication failed",
-        details: "Please sign in again",
+        details: authError.message,
+        needsReauth: true,
       });
     }
 
     const formUrl = await createGoogleForm(questions, surveyTitle, auth);
     res.json({ formUrl });
   } catch (error) {
-    console.error("Error details:", error.message);
+    console.error("Error details:", error);
     res.status(error.status || 500).json({
       error: "Failed to create survey",
       details: error.message,
     });
+  }
+});
+
+app.get("/oauth2callback", (req, res) => {
+  const code = req.query.code;
+  if (code) {
+    res.send(`
+      <script>
+        window.opener.postMessage({ code: '${code}' }, 'https://true-score.vercel.app');
+        window.close();
+      </script>
+    `);
+  } else {
+    res.status(400).send("No code received");
   }
 });
 
