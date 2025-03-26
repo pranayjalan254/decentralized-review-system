@@ -33,3 +33,7 @@ dist-ssr
 .env.test.local
 .env.production.local
 .vercel
+
+# Ignore transpiled JavaScript files
+/src/**/*.js
+/src/**/*.js.map

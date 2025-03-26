@@ -110,15 +110,18 @@ export async function getAllReviews(establishmentName: string) {
     }
 
     return result[0].map((review: any) => ({
-      id: `${review.reviewer}-${review.timestamp}-${review.establishment_name}`, 
+      id: `${review.reviewer}-${review.timestamp}-${review.establishment_name}`,
       reviewer: review.reviewer,
       establishmentName: review.establishment_name,
       rating: Number(review.rating),
       comment: review.comment,
       timestamp: Number(review.timestamp),
     }));
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message?.includes("E_REVIEW_ALREADY_EXISTS")) {
+      throw new Error("You have already reviewed this establishment");
+    }
     console.error("Error getting reviews:", error);
-    throw error; 
+    throw error;
   }
 }

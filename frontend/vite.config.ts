@@ -13,9 +13,13 @@ export default defineConfig({
   },
   envPrefix: "VITE_",
   server: {
-    hmr: true, // Ensure HMR is enabled
+    hmr: true,
     watch: {
-      usePolling: true, // Useful in Docker, WSL, or networked file systems
+      usePolling: true,
     },
+  },
+  build: {
+    outDir: "dist", // Ensures built files are stored in "dist/" instead of "src/"
+    emptyOutDir: true, // Cleans up old build files before each new build
   },
 });

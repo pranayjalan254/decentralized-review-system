@@ -35,6 +35,7 @@ export default function PlaceModal({
   const [reviews, setReviews] = useState<any[]>([]);
   const [averageRating, setAverageRating] = useState<number>(0);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+  const [hasUserReviewed, setHasUserReviewed] = useState(false);
 
   useEffect(() => {
     const fetchReviewsData = async () => {
@@ -46,6 +47,14 @@ export default function PlaceModal({
             getAverageRating(place.displayName),
             getReviewCount(place.displayName),
           ]);
+
+          // Check if current user has already reviewed
+          const userHasReviewed = reviews.some(
+            (review) =>
+              review.reviewer.toLowerCase() === accountAddress?.toLowerCase()
+          );
+          setHasUserReviewed(userHasReviewed);
+
           setReviews(reviews);
           setAverageRating(avgRating);
           setReviewCount(count);
@@ -60,7 +69,7 @@ export default function PlaceModal({
     if (isOpen) {
       fetchReviewsData();
     }
-  }, [isOpen, place?.displayName]);
+  }, [isOpen, place?.displayName, accountAddress]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -102,9 +111,17 @@ export default function PlaceModal({
       setReviewCount(newCount);
       onReviewSubmit();
       onClose();
-    } catch (error) {
-      console.error("Error submitting review:", error);
-      toast.error("Failed to submit review. Please try again.");
+    } catch (error: any) {
+      // Check for the specific error message or code for duplicate review
+      if (
+        error.message?.includes("E_REVIEW_ALREADY_EXISTS") ||
+        error.message?.includes("has already reviewed")
+      ) {
+        toast.error("You have already submitted a review for this place");
+      } else {
+        toast.error("Failed to submit review. Please try again.");
+      }
+      console.error("Review submission error:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -209,10 +226,10 @@ export default function PlaceModal({
                 {!isWritingReview ? (
                   <button
                     onClick={() => setIsWritingReview(true)}
-                    disabled={isSubmitting}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-50"
+                    disabled={isSubmitting || hasUserReviewed}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Write a Review
+                    {hasUserReviewed ? "Already Reviewed" : "Write a Review"}
                   </button>
                 ) : (
                   <div className="w-full space-y-4 bg-white/5 p-4 rounded-lg">
