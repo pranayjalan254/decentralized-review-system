@@ -1,7 +1,7 @@
 import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 
 const moduleaddress =
-  "0x82e8de6554ba7ed96be0529a866bbb68f66404b465bda125a5cb6a4d10737c3e";
+  "0x3951e8b47f090bd24e04dde87b27cee5f45d021639fe5546feb9998022f9e4bb";
 const modulecode = "fungible_asset";
 const config = new AptosConfig({
   network: Network.DEVNET,

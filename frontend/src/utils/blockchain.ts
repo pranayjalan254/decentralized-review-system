@@ -5,7 +5,7 @@ import {
   Ed25519PrivateKey,
   Account,
 } from "@aptos-labs/ts-sdk";
-import { main } from "./mint";
+import { mint } from "./mint";
 
 const config = new AptosConfig({ network: Network.TESTNET });
 export const aptos = new Aptos(config);
@@ -51,7 +51,7 @@ export async function submitReview({
     await aptos.waitForTransaction({ transactionHash: response.hash });
     console.log(reviewerAddress);
     // Mint tokens for the reviewer
-    await main(reviewerAddress, 20);
+    await mint(reviewerAddress, 20);
     return response;
   } catch (error) {
     console.error("Error submitting review:", error);

@@ -3,7 +3,6 @@ import Features from "./Features";
 import Footer from "./Footer";
 import Hero from "./Hero";
 import Navbar from "./Navbar";
-import Team from "./Team";
 
 function LandingPage() {
   return (
@@ -13,7 +12,6 @@ function LandingPage() {
         <Navbar />
         <Hero />
         <Features />
-        <Team />
         <Footer />
       </div>
     </div>
