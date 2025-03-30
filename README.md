@@ -47,6 +47,5 @@ It is a decentralized Review and AI powered survey platform where transparent an
 
 For any questions, issues, or support, please reach out to us:
 
-- Email: pranayjalan.work@gmail.com
-- [X (Twitter)](https://x.com/true__score)
+- Email: anshnohria3305@gmail.com
 - Open an issue in the repository.
